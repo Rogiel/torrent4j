@@ -45,7 +45,7 @@ import net.torrent.torrent.context.TorrentPeer;
 import net.torrent.torrent.context.TorrentPeer.ChokingState;
 import net.torrent.torrent.context.TorrentPeer.InterestState;
 import net.torrent.torrent.context.TorrentPeerCapabilities.TorrentPeerCapability;
-import net.torrent.util.PeerCallback;
+import net.torrent.util.PeerWirePeerCallback;
 
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -343,7 +343,7 @@ public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 
 		if (datastore.checksum(part.getPiece())) {
 			manager.getContext().getBitfield().setPiece(part.getPiece(), true);
-			manager.getPeerManager().executeActive(new PeerCallback() {
+			manager.getPeerManager().executeActive(new PeerWirePeerCallback() {
 				@Override
 				public void callback(PeerWirePeer peer) {
 					peer.have(part.getPiece().getIndex());

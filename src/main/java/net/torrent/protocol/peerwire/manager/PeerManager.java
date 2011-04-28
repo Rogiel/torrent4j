@@ -25,7 +25,7 @@ import java.util.Set;
 import net.torrent.protocol.peerwire.PeerWirePeer;
 import net.torrent.torrent.context.TorrentContext;
 import net.torrent.torrent.context.TorrentPeer;
-import net.torrent.util.PeerCallback;
+import net.torrent.util.PeerWirePeerCallback;
 
 import org.jboss.netty.channel.Channel;
 
@@ -140,21 +140,21 @@ public class PeerManager implements Iterable<PeerWirePeer> {
 		return Collections.unmodifiableSet(inactivePeers.keySet());
 	}
 
-	public void executeActive(PeerCallback callback) {
+	public void executeActive(PeerWirePeerCallback callback) {
 		for (final Entry<Channel, PeerWirePeer> entry : this.activePeers
 				.entrySet()) {
 			callback.callback(entry.getValue());
 		}
 	}
 
-	public void executeInactive(PeerCallback callback) {
+	public void executeInactive(PeerWirePeerCallback callback) {
 		for (final Entry<Channel, PeerWirePeer> entry : this.inactivePeers
 				.entrySet()) {
 			callback.callback(entry.getValue());
 		}
 	}
 
-	public void execute(PeerCallback callback) {
+	public void execute(PeerWirePeerCallback callback) {
 		executeActive(callback);
 		executeInactive(callback);
 	}

@@ -40,7 +40,7 @@ public class TorrentContext {
 	private final TorrentPeerCapabilities capabilites = new TorrentPeerCapabilities(
 			TorrentPeerCapability.DHT, TorrentPeerCapability.FAST_PEERS);
 
-	private final Set<TorrentPeer> peers = new HashSet<TorrentPeer>();
+	private final TorrentSwarm swarm = new TorrentSwarm(this);
 	/**
 	 * Unknown peers does not have their IDs, consequently they cannot be
 	 * queried using their Id and must be done through IP.
@@ -103,8 +103,8 @@ public class TorrentContext {
 	 * 
 	 * @return the list of peers
 	 */
-	public Set<TorrentPeer> getPeers() {
-		return Collections.unmodifiableSet(peers);
+	public TorrentSwarm getSwarm() {
+		return swarm;
 	}
 
 	/**
@@ -116,73 +116,15 @@ public class TorrentContext {
 		return Collections.unmodifiableSet(unknownPeers);
 	}
 
-	/**
-	 * Get an peer by its PeerID
-	 * 
-	 * @param peerId
-	 *            the peer id
-	 * @return the found peer. Null if not found.
-	 */
 	public TorrentPeer getPeer(TorrentPeerID peerId) {
-		for (final TorrentPeer peer : peers) {
-			if (peer.getPeerID().equals(peerId))
-				return peer;
-		}
-		return null;
+		return swarm.getPeer(peerId);
 	}
 
-	/**
-	 * Get an peer by its address
-	 * 
-	 * @param address
-	 *            the address
-	 * @return the found peer. Null if not found.
-	 */
 	public TorrentPeer getPeer(InetSocketAddress address) {
-		for (final TorrentPeer peer : peers) {
-			if (peer.getSocketAddress().equals(address))
-				return peer;
-		}
-		return null;
+		return swarm.getPeer(address);
 	}
 
-	/**
-	 * Lookup for a peer first by its id, then by address, if still not found,
-	 * creates a new entry.
-	 * 
-	 * @param id
-	 *            the peer id
-	 * @param address
-	 *            the address
-	 * @return the found or newly created peer
-	 */
 	public TorrentPeer getPeer(TorrentPeerID id, InetSocketAddress address) {
-		TorrentPeer peer = getPeer(id);
-		if (peer == null) {
-			peer = getPeer(address);
-			if (peer != null) {
-				if (peers.remove(peer))
-					peer = peer.createWithID(id);
-			} else {
-				peer = new TorrentPeer(this, id, null);
-			}
-			peers.add(peer);
-		}
-		return peer;
-	}
-
-	/**
-	 * If this peer already exists, will update its IP.
-	 * 
-	 * @param peerInfo
-	 *            the peer info object, returned from the tracker
-	 */
-	public TorrentPeer addPeerByPeerInfo(PeerInfo peerInfo) {
-		final TorrentPeerID id = TorrentPeerID.create(peerInfo.getPeerId());
-		final InetSocketAddress address = new InetSocketAddress(
-				peerInfo.getIp(), peerInfo.getPort());
-		TorrentPeer peer = getPeer(id, address);
-		peer.setSocketAddress(address);
-		return peer;
+		return swarm.getPeer(id, address);
 	}
 }

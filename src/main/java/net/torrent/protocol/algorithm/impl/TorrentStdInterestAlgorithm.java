@@ -20,6 +20,7 @@ import net.torrent.protocol.peerwire.manager.TorrentManager;
 import net.torrent.torrent.context.TorrentPeer;
 import net.torrent.torrent.context.TorrentPeer.ChokingState;
 import net.torrent.torrent.context.TorrentPeer.InterestState;
+import net.torrent.torrent.piece.PieceSelector;
 
 /**
  * Standard torrent interest algorithm
@@ -29,15 +30,29 @@ import net.torrent.torrent.context.TorrentPeer.InterestState;
 public class TorrentStdInterestAlgorithm implements TorrentInterestAlgorithm {
 	@SuppressWarnings("unused")
 	private final TorrentManager manager;
+	private final PieceSelector selector;
 
-	public TorrentStdInterestAlgorithm(TorrentManager manager) {
+	/**
+	 * Creates a new instance
+	 * 
+	 * @param manager
+	 *            the manager
+	 * @param pieceSelector
+	 *            the piece selector
+	 */
+	public TorrentStdInterestAlgorithm(TorrentManager manager,
+			PieceSelector pieceSelector) {
 		this.manager = manager;
+		this.selector = pieceSelector;
 	}
 
 	@Override
 	public InterestState interested(TorrentPeer peer) {
-		// if(peer.getPort() == 25944)
-		// return InterestState.UNINTERESTED;
+		int pieces = selector.countPieces(peer);
+		if(pieces >= 5)
+			return InterestState.INTERESTED;
+		
+		
 		return InterestState.INTERESTED;
 	}
 

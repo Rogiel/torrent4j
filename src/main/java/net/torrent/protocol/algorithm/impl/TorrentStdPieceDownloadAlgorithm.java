@@ -24,7 +24,6 @@ import net.torrent.torrent.TorrentPart;
 import net.torrent.torrent.TorrentPiece;
 import net.torrent.torrent.context.TorrentPeer;
 import net.torrent.torrent.piece.PieceSelector;
-import net.torrent.torrent.piece.RandomPieceSelector;
 
 /**
  * This standard implementation of {@link TorrentPieceDownloadAlgorithm} chooses
@@ -39,8 +38,6 @@ public class TorrentStdPieceDownloadAlgorithm implements
 	 * The torrent manager
 	 */
 	private final TorrentManager manager;
-	// private final TorrentContext context;
-	// private final Torrent torrent;
 
 	/**
 	 * This selector is used to find the next piece to be downloaded. Parts are
@@ -61,12 +58,13 @@ public class TorrentStdPieceDownloadAlgorithm implements
 	 * @param manager
 	 *            the torrent manager instance. With this object is possible to
 	 *            retrieve current downloads/uploads and connections.
+	 * @param pieceSelector
+	 *            the piece selector
 	 */
-	public TorrentStdPieceDownloadAlgorithm(TorrentManager manager) {
+	public TorrentStdPieceDownloadAlgorithm(TorrentManager manager,
+			PieceSelector pieceSelector) {
 		this.manager = manager;
-		// this.context = this.manager.getContext();
-		// this.torrent = this.manager.getTorrent();
-		selector = new RandomPieceSelector(manager);
+		this.selector = pieceSelector;
 	}
 
 	@Override

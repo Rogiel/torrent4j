@@ -13,32 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.torrent.torrent.piece;
+package net.torrent.util;
 
-import net.torrent.torrent.TorrentPiece;
-import net.torrent.torrent.context.TorrentPeer;
+import net.torrent.protocol.peerwire.PeerWirePeer;
+import net.torrent.protocol.peerwire.manager.PeerManager;
 
 /**
- * The {@link PieceSelector} is used to select the desired piece to be
- * downloaded. Implementations must make sure the piece is not being downloaded
- * already and that the peer has it.
+ * Callback used in {@link PeerManager#execute(PeerCallback)}
  * 
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
-public interface PieceSelector {
+public interface PeerWirePeerCallback {
 	/**
-	 * Selects the next piece suitable for download.
+	 * Execute the desired action for <tt>peer</tt>
 	 * 
 	 * @param peer
-	 *            the peer chosen for download
-	 * @return the {@link TorrentPiece piece} selected for download.
+	 *            the peer
 	 */
-	public TorrentPiece select(TorrentPeer peer);
-
-	/**
-	 * Return the amount of pieces available to select
-	 * 
-	 * @return the amount of pieces available
-	 */
-	public int countPieces(TorrentPeer peer);
+	void callback(PeerWirePeer peer);
 }

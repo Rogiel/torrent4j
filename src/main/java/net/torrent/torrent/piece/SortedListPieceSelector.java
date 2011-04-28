@@ -32,11 +32,11 @@ public abstract class SortedListPieceSelector implements PieceSelector {
 	/**
 	 * The torrent manager
 	 */
-	private final TorrentManager manager;
+	protected final TorrentManager manager;
 	/**
 	 * The sorted list of pieces
 	 */
-	private final List<TorrentPiece> pieces;
+	protected final List<TorrentPiece> pieces;
 
 	/**
 	 * Creates a new instance
@@ -53,6 +53,14 @@ public abstract class SortedListPieceSelector implements PieceSelector {
 		this.sort(this.pieces);
 	}
 
+	/**
+	 * Sorts the set using an implementation specific algorithm.
+	 * 
+	 * @param pieces
+	 *            the unsorted pieces list that will be sorted.
+	 */
+	protected abstract void sort(List<TorrentPiece> pieces);
+
 	@Override
 	public synchronized TorrentPiece select(TorrentPeer peer) {
 		for (int index = 0; index < pieces.size(); index++) {
@@ -68,11 +76,19 @@ public abstract class SortedListPieceSelector implements PieceSelector {
 		return null;
 	}
 
-	/**
-	 * Sorts the set using an implementation specific algorithm.
-	 * 
-	 * @param pieces
-	 *            the unsorted pieces list that will be sorted.
-	 */
-	protected abstract void sort(List<TorrentPiece> pieces);
+	@Override
+	public int countPieces(TorrentPeer peer) {
+		int count = 0;
+		for (int index = 0; index < pieces.size(); index++) {
+			final TorrentPiece piece = pieces.get(index);
+			if (manager.getContext().getBitfield().hasPiece(piece))
+				continue;
+			if (!peer.getBitfield().hasPiece(piece))
+				continue;
+			if (manager.getDownloadManager().isDownloading(piece))
+				continue;
+			count++;
+		}
+		return count;
+	}
 }
