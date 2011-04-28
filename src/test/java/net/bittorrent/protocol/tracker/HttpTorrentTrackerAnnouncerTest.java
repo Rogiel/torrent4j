@@ -35,6 +35,6 @@ public class HttpTorrentTrackerAnnouncerTest {
 		System.out.println(announcer.announce(torrent, torrent.getTrackers()
 				.iterator().next()));
 
-		Thread.sleep(10 * 60 * 1000);
+		//Thread.sleep(10 * 60 * 1000);
 	}
 }

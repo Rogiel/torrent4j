@@ -24,10 +24,8 @@ import net.torrent.BitTorrentClient;
 import net.torrent.BitTorrentClientFactory;
 import net.torrent.torrent.Torrent;
 
-import org.junit.Test;
-
 public class PeerWireManagerTest {
-	@Test
+	// @Test
 	public void testPeerWire() throws IOException, InterruptedException,
 			URISyntaxException {
 		final Torrent torrent = Torrent.load(new File(

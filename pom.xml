@@ -2,11 +2,103 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.bittorrent</groupId>
-	<artifactId>bittorrent-java</artifactId>
-	<version>1.0.0-alpha</version>
-	<name>Java Bittorrent Library</name>
-	<description>Download and upload torrents with this embeddable library!</description>
+	<artifactId>libtorrent</artifactId>
+	<packaging>jar</packaging>
+	<name>libtorrent</name>
+	<version>1.0</version>
+	<description>Java library used for downloading and uploading torrent files</description>
+	<url>http://code.google.com/p/libtorrent-java</url>
 
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<scm>
+		<url>https://github.com/Rogiel/libtorrent-java</url>
+		<connection>git@github.com:Rogiel/libtorrent-java.git</connection>
+	</scm>
+	<developers>
+		<developer>
+			<id>...</id>
+			<name>Rogiel Josias Sulzbach</name>
+			<email>rogiel@rogiel.com</email>
+		</developer>
+	</developers>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.jboss.netty</groupId>
+			<artifactId>netty</artifactId>
+			<version>3.2.4.Final</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.jboss.netty</groupId> -->
+		<!-- <artifactId>netty</artifactId> -->
+		<!-- <version>4.0.0.Alpha1-SNAPSHOT</version> -->
+		<!-- <type>bundle</type> -->
+		<!-- <scope>compile</scope> -->
+		<!-- </dependency> -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<defaultGoal>package</defaultGoal>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.3.1</version>
+				<executions>
+					<execution>
+						<id>jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.2</version>
+				<executions>
+					<execution>
+						<id>source</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.7</version>
+				<executions>
+					<execution>
+						<id>docs</id>
+						<phase>package</phase>
+						<goals>
+							<goal>aggregate-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 	<repositories>
 		<repository>
 			<id>repository.jboss.org</id>
@@ -16,13 +108,4 @@
 			</snapshots>
 		</repository>
 	</repositories>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.jboss.netty</groupId>
-			<artifactId>netty</artifactId>
-			<version>3.2.4.Final</version>
-			<scope>compile</scope>
-		</dependency>
-	</dependencies>
 </project>
