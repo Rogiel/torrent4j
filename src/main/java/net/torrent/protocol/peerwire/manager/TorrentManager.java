@@ -19,6 +19,13 @@ import net.torrent.protocol.datastore.TorrentDatastore;
 import net.torrent.torrent.Torrent;
 import net.torrent.torrent.context.TorrentContext;
 
+/**
+ * This is an simple class used to group up all managers for a single torrent.
+ * It does not do nothing special is just used to avoid incompatibility with
+ * handlers once a new manager is created.
+ * 
+ * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
+ */
 public class TorrentManager {
 	private final TorrentContext context;
 

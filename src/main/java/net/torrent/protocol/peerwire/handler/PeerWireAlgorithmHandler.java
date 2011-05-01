@@ -58,6 +58,11 @@ import org.jboss.netty.handler.timeout.IdleStateEvent;
 /**
  * Standard handler responsible for forwarding calls to {@link TorrentAlgorithm}
  * methods. This class handles low-level protocol specific behavior.
+ * <p>
+ * The general guide line for this handler is to abstract <b>ALL</b> protocol
+ * specific models and use an abstracted algorithm for download. This will
+ * obviously limit the complexity of algorithm implementations. If that is the
+ * case, you are free to implement a new handler.
  * 
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
