@@ -91,7 +91,7 @@ public interface TorrentPieceDownloadAlgorithm {
 		 * Choke this peer
 		 */
 		NOT_INTERESTED,
-		
+
 		/**
 		 * Request again the same part
 		 */

@@ -101,7 +101,8 @@ public class HandshakeMessage implements PeerWireWritableMessage,
 
 	@Override
 	public int length() {
-		return 1 + pstrlen + pstr.length() + 8 + infohash.length + peerId.length;
+		return 1 + pstrlen + pstr.length() + 8 + infohash.length
+				+ peerId.length;
 	}
 
 	public int getPstrlen() {

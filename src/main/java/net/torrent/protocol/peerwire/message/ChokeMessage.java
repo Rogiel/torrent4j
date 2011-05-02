@@ -44,7 +44,7 @@ public class ChokeMessage implements PeerWireWritableMessage,
 	public void write(ChannelBuffer buffer) throws IOException {
 		buffer.writeByte(MESSAGE_ID);
 	}
-	
+
 	@Override
 	public int length() {
 		return 1;

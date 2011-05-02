@@ -112,7 +112,7 @@ public class RequestMessage implements PeerWireWritableMessage,
 		buffer.writeInt(start);
 		buffer.writeInt(length);
 	}
-	
+
 	@Override
 	public int length() {
 		return 13;

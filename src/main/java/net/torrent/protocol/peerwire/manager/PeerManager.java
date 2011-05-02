@@ -25,6 +25,7 @@ import java.util.Set;
 import net.torrent.protocol.peerwire.PeerWirePeer;
 import net.torrent.torrent.context.TorrentContext;
 import net.torrent.torrent.context.TorrentPeer;
+import net.torrent.util.PeerCallback;
 import net.torrent.util.PeerWirePeerCallback;
 
 import org.jboss.netty.channel.Channel;

@@ -22,7 +22,6 @@ import net.torrent.protocol.algorithm.TorrentPieceDownloadAlgorithm;
 import net.torrent.protocol.algorithm.TorrentPieceUploadAlgorithm;
 import net.torrent.protocol.peerwire.manager.TorrentManager;
 import net.torrent.torrent.piece.PieceSelector;
-import net.torrent.torrent.piece.ScoredPieceSelector;
 
 /**
  * Standard torrent algorithm
@@ -30,8 +29,6 @@ import net.torrent.torrent.piece.ScoredPieceSelector;
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
 public class TorrentStdAlgorithm implements TorrentAlgorithm {
-	private final PieceSelector pieceSelector;
-
 	private final TorrentPeerAlgorithm peerAlgorithm;
 	private final TorrentInterestAlgorithm interestAlgorithm;
 	private final TorrentPieceDownloadAlgorithm downloadAlgorithm;
@@ -39,8 +36,6 @@ public class TorrentStdAlgorithm implements TorrentAlgorithm {
 
 	public TorrentStdAlgorithm(final TorrentManager manager,
 			final PieceSelector selector) {
-		pieceSelector = new ScoredPieceSelector(manager);
-
 		peerAlgorithm = new TorrentStdPeerAlgorithm(manager);
 		interestAlgorithm = new TorrentStdInterestAlgorithm(manager, selector);
 		downloadAlgorithm = new TorrentStdPieceDownloadAlgorithm(manager,

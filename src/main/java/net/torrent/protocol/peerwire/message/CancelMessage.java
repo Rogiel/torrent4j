@@ -74,7 +74,7 @@ public class CancelMessage implements PeerWireWritableMessage,
 		buffer.writeInt(start);
 		buffer.writeInt(length);
 	}
-	
+
 	@Override
 	public int length() {
 		return 3 * 4 + 1;

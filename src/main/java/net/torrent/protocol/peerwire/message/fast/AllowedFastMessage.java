@@ -97,7 +97,7 @@ public class AllowedFastMessage implements PeerWireWritableMessage,
 			buffer.writeInt(piece);
 		}
 	}
-	
+
 	@Override
 	public int length() {
 		return 1 + pieces.length * 4;

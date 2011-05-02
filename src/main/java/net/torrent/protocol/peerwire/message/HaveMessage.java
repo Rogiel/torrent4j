@@ -71,7 +71,7 @@ public class HaveMessage implements PeerWireWritableMessage,
 		buffer.writeByte(MESSAGE_ID);
 		buffer.writeInt(piece);
 	}
-	
+
 	@Override
 	public int length() {
 		return 5;

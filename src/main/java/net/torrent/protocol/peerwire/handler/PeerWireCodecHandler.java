@@ -66,7 +66,8 @@ public class PeerWireCodecHandler extends SimpleChannelHandler {
 			throws Exception {
 		if (e.getMessage() instanceof HandshakeMessage) {
 			if (state.hasHandshaked())
-				throw new IllegalStateException("Handshake has already been sent");
+				throw new IllegalStateException(
+						"Handshake has already been sent");
 			e.getFuture().addListener(new ChannelFutureListener() {
 				@Override
 				public void operationComplete(ChannelFuture future)

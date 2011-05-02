@@ -28,7 +28,7 @@ import net.torrent.protocol.peerwire.manager.TorrentManager;
 import net.torrent.torrent.Torrent;
 import net.torrent.torrent.context.TorrentContext;
 import net.torrent.torrent.piece.PieceSelector;
-import net.torrent.torrent.piece.RandomPieceSelector;
+import net.torrent.torrent.piece.ScoredPieceSelector;
 
 /**
  * Factory class for {@link BitTorrentClient}.
@@ -88,7 +88,7 @@ public class BitTorrentClientFactory {
 		this.datastore = new PlainTorrentDatastore(new File("store.bin"));
 		this.manager = new TorrentManager(context, datastore);
 		if (this.selector == null)
-			this.selector = new RandomPieceSelector(manager);
+			this.selector = new ScoredPieceSelector(manager);
 		this.algorithm = new TorrentStdAlgorithm(manager, selector);
 	}
 
@@ -122,7 +122,7 @@ public class BitTorrentClientFactory {
 		this.datastore = datastore;
 		this.manager = new TorrentManager(context, datastore);
 		if (this.selector == null)
-			this.selector = new RandomPieceSelector(manager);
+			this.selector = new ScoredPieceSelector(manager);
 		this.algorithm = new TorrentStdAlgorithm(manager, selector);
 	}
 

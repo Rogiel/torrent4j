@@ -46,7 +46,7 @@ public class KeepAliveMessage implements PeerWireWritableMessage,
 	@Override
 	public void write(ChannelBuffer buffer) throws IOException {
 	}
-	
+
 	@Override
 	public int length() {
 		return 0;

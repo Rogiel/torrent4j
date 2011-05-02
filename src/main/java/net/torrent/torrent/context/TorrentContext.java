@@ -20,17 +20,19 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.torrent.protocol.tracker.message.PeerListMessage.PeerInfo;
 import net.torrent.torrent.Torrent;
 import net.torrent.torrent.context.TorrentPeerCapabilities.TorrentPeerCapability;
 
+/**
+ * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
+ */
 public class TorrentContext {
 	/**
 	 * The torrent metadata object
 	 */
 	private final Torrent torrent;
 	/**
-	 * The bitfield
+	 * The current torrent bitfield
 	 */
 	private final TorrentBitfield bitfield = new TorrentBitfield(this);
 
@@ -116,14 +118,38 @@ public class TorrentContext {
 		return Collections.unmodifiableSet(unknownPeers);
 	}
 
+	/**
+	 * Get the peer with the given id
+	 * 
+	 * @param peerId
+	 *            the peer id
+	 * @return the found peer
+	 */
 	public TorrentPeer getPeer(TorrentPeerID peerId) {
 		return swarm.getPeer(peerId);
 	}
 
+	/**
+	 * Get the peer with the given address
+	 * 
+	 * @param address
+	 *            the address
+	 * @return the found peer
+	 */
 	public TorrentPeer getPeer(InetSocketAddress address) {
 		return swarm.getPeer(address);
 	}
 
+	/**
+	 * Try to locate a peer first by its id. If no match is found, tries to
+	 * lookup by its address.
+	 * 
+	 * @param id
+	 *            the peer id
+	 * @param address
+	 *            the peer address
+	 * @return the found peer
+	 */
 	public TorrentPeer getPeer(TorrentPeerID id, InetSocketAddress address) {
 		return swarm.getPeer(id, address);
 	}

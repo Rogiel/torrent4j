@@ -21,8 +21,8 @@ import net.torrent.protocol.peerwire.PeerWirePeer;
 import net.torrent.protocol.peerwire.manager.TorrentManager;
 import net.torrent.protocol.peerwire.message.HandshakeMessage;
 import net.torrent.torrent.context.TorrentPeer;
-import net.torrent.torrent.context.TorrentPeerID;
 import net.torrent.torrent.context.TorrentPeerCapabilities.TorrentPeerCapability;
+import net.torrent.torrent.context.TorrentPeerID;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
