@@ -29,19 +29,56 @@ import net.torrent.util.PeerWirePeerCallback;
 
 import org.jboss.netty.channel.Channel;
 
+/**
+ * The peer manager is used to keep control over active peers and they
+ * {@link Channel Netty Channel} used to write or read messages.
+ * <p>
+ * Please note that the manager actually does not make any decision nor block an
+ * requested piece.
+ * <p>
+ * You can {@link Iterable iterate} over this manager to get <b>active</b>
+ * {@link PeerWirePeer peers}.
+ */
 public class PeerManager implements Iterable<PeerWirePeer> {
+	/**
+	 * The torrent context
+	 */
 	private final TorrentContext context;
+	/**
+	 * The {@link ConnectionManager} instance
+	 */
 	private final ConnectionManager connectionManager;
 
+	/**
+	 * The map of active channel-peer mapping
+	 */
 	private final Map<Channel, PeerWirePeer> activePeers = new HashMap<Channel, PeerWirePeer>();
+	/**
+	 * The map of inactive channel-peer mapping
+	 */
 	private final Map<Channel, PeerWirePeer> inactivePeers = new HashMap<Channel, PeerWirePeer>();
 
+	/**
+	 * Creates a new instance
+	 * 
+	 * @param context
+	 *            the torrent context
+	 * @param connectionManager
+	 *            the connection manager instance
+	 */
 	public PeerManager(TorrentContext context,
 			ConnectionManager connectionManager) {
 		this.context = context;
 		this.connectionManager = connectionManager;
 	}
 
+	/**
+	 * Tests if the given <tt>channel</tt> has an peer attached to it.
+	 * 
+	 * @param channel
+	 *            the channel
+	 * @return true if an peer is attached
+	 */
 	public boolean contains(Channel channel) {
 		if (activePeers.containsKey(channel))
 			return true;
@@ -50,6 +87,15 @@ public class PeerManager implements Iterable<PeerWirePeer> {
 		return false;
 	}
 
+	/**
+	 * Tests if the current {@link PeerWirePeer} is registered in this manager.
+	 * You will normally not have access to {@link PeerWirePeer} object, thus
+	 * whis method might not be very useful outside handlers.
+	 * 
+	 * @param peer
+	 *            the {@link PeerWirePeer} peer
+	 * @return true if this <tt>peer</tt> is registered in this manager
+	 */
 	public boolean contains(PeerWirePeer peer) {
 		if (activePeers.containsValue(peer))
 			return true;
@@ -58,6 +104,13 @@ public class PeerManager implements Iterable<PeerWirePeer> {
 		return false;
 	}
 
+	/**
+	 * Get the {@link PeerWirePeer} registered in the given <tt>channel</tt>.
+	 * 
+	 * @param channel
+	 *            the channel
+	 * @return the peer instance.
+	 */
 	public PeerWirePeer getPeer(Channel channel) {
 		PeerWirePeer peer = activePeers.get(channel);
 		if (peer == null)
@@ -65,6 +118,13 @@ public class PeerManager implements Iterable<PeerWirePeer> {
 		return peer;
 	}
 
+	/**
+	 * Lookup for the {@link Channel} in which the <tt>peer</tt> is attached to.
+	 * 
+	 * @param peer
+	 *            the peer
+	 * @return the {@link Channel} for the given <tt>peer</tt>
+	 */
 	public Channel getChannel(PeerWirePeer peer) {
 		for (final Entry<Channel, PeerWirePeer> entry : activePeers.entrySet()) {
 			if (entry.getValue().equals(peer))
@@ -78,10 +138,24 @@ public class PeerManager implements Iterable<PeerWirePeer> {
 		return null;
 	}
 
+	/**
+	 * Test if there are no active peers in this manager.
+	 * 
+	 * @return true if no active peers
+	 */
 	public boolean isEmpty() {
 		return activePeers.isEmpty();
 	}
 
+	/**
+	 * Adds a new peer to this manager.
+	 * 
+	 * @param channel
+	 *            the channel
+	 * @param peer
+	 *            the peer
+	 * @return the {@link PeerWirePeer} created instance.
+	 */
 	public PeerWirePeer add(Channel channel, TorrentPeer peer) {
 		if (channel.isConnected()) {
 			return activePeers.put(channel, new PeerWirePeer(channel, peer));
@@ -90,6 +164,13 @@ public class PeerManager implements Iterable<PeerWirePeer> {
 		}
 	}
 
+	/**
+	 * Removes an {@link Channel} and its {@link TorrentPeer} from this manager.
+	 * 
+	 * @param channel
+	 *            the channel
+	 * @return the, now removed, {@link PeerWirePeer} instance
+	 */
 	public PeerWirePeer remove(Channel channel) {
 		PeerWirePeer peer;
 		if ((peer = activePeers.remove(channel)) != null)
@@ -99,6 +180,13 @@ public class PeerManager implements Iterable<PeerWirePeer> {
 		return null;
 	}
 
+	/**
+	 * Removes an {@link PeerWirePeer} from this manager.
+	 * 
+	 * @param peer
+	 *            the peer
+	 * @return the, now removed, {@link PeerWirePeer} instance
+	 */
 	public PeerWirePeer remove(PeerWirePeer peer) {
 		final Channel channel = getChannel(peer);
 		PeerWirePeer peerRemoved;
@@ -109,6 +197,13 @@ public class PeerManager implements Iterable<PeerWirePeer> {
 		return null;
 	}
 
+	/**
+	 * Updates this {@link Channel} peer state (i.e. active or inactive)
+	 * 
+	 * @param channel
+	 *            the channel
+	 * @return the {@link PeerWirePeer} instance updated
+	 */
 	public PeerWirePeer update(Channel channel) {
 		PeerWirePeer peer;
 		if ((peer = remove(channel)) == null)
@@ -116,30 +211,66 @@ public class PeerManager implements Iterable<PeerWirePeer> {
 		return add(channel, peer.getTorrentPeer());
 	}
 
+	/**
+	 * Get the total active peers
+	 * 
+	 * @return the active peers count
+	 */
 	public int getActivePeersCount() {
 		return activePeers.size();
 	}
 
+	/**
+	 * Get the total inactive peers
+	 * 
+	 * @return the inactive peers count
+	 */
 	public int getImactivePeersCount() {
 		return activePeers.size();
 	}
 
+	/**
+	 * Get an {@link Map} of all active peers
+	 * 
+	 * @return the {@link Map} of all active peers
+	 */
 	public Map<Channel, PeerWirePeer> getActivePeers() {
 		return Collections.unmodifiableMap(activePeers);
 	}
 
+	/**
+	 * Get an {@link Map} of all inactive peers
+	 * 
+	 * @return the {@link Map} of all inactive peers
+	 */
 	public Map<Channel, PeerWirePeer> getInactivePeers() {
 		return Collections.unmodifiableMap(inactivePeers);
 	}
 
+	/**
+	 * Get an {@link Set} of all active {@link Channel channels}
+	 * 
+	 * @return the {@link Set} of all active {@link Channel channels}
+	 */
 	public Set<Channel> getActiveChannels() {
 		return Collections.unmodifiableSet(activePeers.keySet());
 	}
 
+	/**
+	 * Get an {@link Set} of all inactive {@link Channel channels}
+	 * 
+	 * @return the {@link Set} of all inactive {@link Channel channels}
+	 */
 	public Set<Channel> getInactiveChannels() {
 		return Collections.unmodifiableSet(inactivePeers.keySet());
 	}
 
+	/**
+	 * Executes the <tt>callback</tt> for each active peer in this manager.
+	 * 
+	 * @param callback
+	 *            the callback
+	 */
 	public void executeActive(PeerWirePeerCallback callback) {
 		for (final Entry<Channel, PeerWirePeer> entry : this.activePeers
 				.entrySet()) {
@@ -147,6 +278,12 @@ public class PeerManager implements Iterable<PeerWirePeer> {
 		}
 	}
 
+	/**
+	 * Executes the <tt>callback</tt> for each inactive peer in this manager.
+	 * 
+	 * @param callback
+	 *            the callback
+	 */
 	public void executeInactive(PeerWirePeerCallback callback) {
 		for (final Entry<Channel, PeerWirePeer> entry : this.inactivePeers
 				.entrySet()) {
@@ -154,6 +291,14 @@ public class PeerManager implements Iterable<PeerWirePeer> {
 		}
 	}
 
+	/**
+	 * Executes the <tt>callback</tt> for each active and inactive peer in this
+	 * manager. This method call firstly {@link #executeActive(PeerCallback)}
+	 * and later {@link #executeInactive(PeerCallback)}.
+	 * 
+	 * @param callback
+	 *            the callback
+	 */
 	public void execute(PeerWirePeerCallback callback) {
 		executeActive(callback);
 		executeInactive(callback);
@@ -164,10 +309,20 @@ public class PeerManager implements Iterable<PeerWirePeer> {
 		return activePeers.values().iterator();
 	}
 
+	/**
+	 * Get the torrent context
+	 * 
+	 * @return the torrent context
+	 */
 	public TorrentContext getContext() {
 		return context;
 	}
 
+	/**
+	 * Get the connection manager
+	 * 
+	 * @return the connection manager
+	 */
 	public ConnectionManager getConnectionManager() {
 		return connectionManager;
 	}

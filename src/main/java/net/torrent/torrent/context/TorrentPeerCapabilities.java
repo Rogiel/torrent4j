@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
+import net.torrent.protocol.peerwire.message.header.PeerWireFastPeersMessageHeaderManager;
+import net.torrent.protocol.peerwire.message.header.PeerWireMessageHeaderManager;
+
 /**
  * Object containing peers support for certain capabilities.
  * 
@@ -66,7 +69,7 @@ public class TorrentPeerCapabilities {
 	 * @return true if capability is supported, false otherwise.
 	 */
 	public boolean supports(TorrentPeerCapability capability) {
-		return capabilities.get(capability.getBit());
+		return capabilities.get(capability.bit);
 	}
 
 	/**
@@ -121,7 +124,7 @@ public class TorrentPeerCapabilities {
 		/**
 		 * Fast peers support
 		 */
-		FAST_PEERS(62),
+		FAST_PEERS(62, PeerWireFastPeersMessageHeaderManager.SHARED_INSTANCE),
 		/**
 		 * DHT Support
 		 */
@@ -130,25 +133,34 @@ public class TorrentPeerCapabilities {
 		/**
 		 * The bit index for this capability
 		 */
-		private final int bit;
+		public final int bit;
+		/**
+		 * The header manager for this extension
+		 */
+		public final PeerWireMessageHeaderManager headerManager;
 
 		/**
 		 * Creates a new capability
 		 * 
 		 * @param bit
 		 *            the bit marking this capability
+		 * @param headerManager
+		 *            the header manager for this extension
 		 */
-		TorrentPeerCapability(int bit) {
+		TorrentPeerCapability(int bit,
+				PeerWireMessageHeaderManager headerManager) {
 			this.bit = bit;
+			this.headerManager = headerManager;
 		}
 
 		/**
-		 * Get the bit marking this capability
+		 * Creates a new capability will a <tt>null</tt> <tt>handlerManager</tt>
 		 * 
-		 * @return the bit marking the capability
+		 * @param bit
+		 *            the bit marking this capability
 		 */
-		public int getBit() {
-			return bit;
+		TorrentPeerCapability(int bit) {
+			this(bit, null);
 		}
 	}
 }

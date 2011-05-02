@@ -94,6 +94,11 @@ public class RejectMessage implements PeerWireWritableMessage,
 		buffer.writeInt(start);
 		buffer.writeInt(length);
 	}
+	
+	@Override
+	public int length() {
+		return 13;
+	}
 
 	public int getIndex() {
 		return index;

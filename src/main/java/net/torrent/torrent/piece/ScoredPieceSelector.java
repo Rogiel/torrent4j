@@ -18,6 +18,7 @@ package net.torrent.torrent.piece;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.torrent.protocol.peerwire.manager.TorrentManager;
 import net.torrent.torrent.TorrentPiece;
@@ -39,7 +40,7 @@ public class ScoredPieceSelector extends SortedListPieceSelector {
 	/**
 	 * Call counter. Used to sort the list.
 	 */
-	private int calls = 0;
+	private AtomicInteger calls = new AtomicInteger(0);
 
 	/**
 	 * The piece comparator
@@ -69,9 +70,9 @@ public class ScoredPieceSelector extends SortedListPieceSelector {
 
 	@Override
 	public synchronized TorrentPiece select(TorrentPeer peer) {
-		if (calls % SORT_INTERVAL == 0)
+		if (calls.get() % SORT_INTERVAL == 0)
 			this.sort(pieces);
-		calls++;
+		calls.incrementAndGet();
 		return super.select(peer);
 	}
 }

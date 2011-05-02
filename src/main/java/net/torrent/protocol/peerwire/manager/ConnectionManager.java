@@ -25,7 +25,14 @@ import net.torrent.torrent.context.TorrentContext;
 import org.jboss.netty.channel.Channel;
 
 /**
- * Connection manager: manages active and inactive connections.
+ * Connection manager: keep control over active and inactive {@link Channel
+ * channel} connections.
+ * <p>
+ * Please note that the manager actually does not make any decision nor create
+ * or block an connection.
+ * <p>
+ * You can {@link Iterable iterate} over this manager to get <b>active</b>
+ * {@link Channel} instances.
  * 
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */

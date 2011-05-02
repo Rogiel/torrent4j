@@ -90,6 +90,11 @@ public class PieceMessage implements PeerWireWritableMessage,
 		buffer.writeInt(start);
 		buffer.writeBytes(block);
 	}
+	
+	@Override
+	public int length() {
+		return 9 + block.capacity();
+	}
 
 	public int getIndex() {
 		return index;

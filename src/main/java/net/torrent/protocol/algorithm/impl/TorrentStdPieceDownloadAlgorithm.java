@@ -32,6 +32,7 @@ import net.torrent.torrent.piece.PieceSelector;
  * 
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
+// TODO separate standard algorithm from extension ones
 public class TorrentStdPieceDownloadAlgorithm implements
 		TorrentPieceDownloadAlgorithm {
 	/**
@@ -60,11 +61,13 @@ public class TorrentStdPieceDownloadAlgorithm implements
 	 *            retrieve current downloads/uploads and connections.
 	 * @param pieceSelector
 	 *            the piece selector
+	 * @param selector
+	 *            the piece selector
 	 */
 	public TorrentStdPieceDownloadAlgorithm(TorrentManager manager,
-			PieceSelector pieceSelector) {
+			PieceSelector selector) {
 		this.manager = manager;
-		this.selector = pieceSelector;
+		this.selector = selector;
 	}
 
 	@Override
@@ -92,6 +95,11 @@ public class TorrentStdPieceDownloadAlgorithm implements
 	@Override
 	public TorrentPart allowedFast(TorrentPeer peer, TorrentPiece piece) {
 		return piece.getFirstPart();
+	}
+
+	@Override
+	public RejectAction rejected(TorrentPeer peer, TorrentPart part) {
+		return RejectAction.TRY_ANOTHER_PIECE;
 	}
 
 	@Override

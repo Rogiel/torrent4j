@@ -37,14 +37,14 @@ public class TorrentStdAlgorithm implements TorrentAlgorithm {
 	private final TorrentPieceDownloadAlgorithm downloadAlgorithm;
 	private final TorrentPieceUploadAlgorithm uploadAlgorithm;
 
-	public TorrentStdAlgorithm(final TorrentManager manager) {
+	public TorrentStdAlgorithm(final TorrentManager manager,
+			final PieceSelector selector) {
 		pieceSelector = new ScoredPieceSelector(manager);
-		
+
 		peerAlgorithm = new TorrentStdPeerAlgorithm(manager);
-		interestAlgorithm = new TorrentStdInterestAlgorithm(manager,
-				pieceSelector);
+		interestAlgorithm = new TorrentStdInterestAlgorithm(manager, selector);
 		downloadAlgorithm = new TorrentStdPieceDownloadAlgorithm(manager,
-				pieceSelector);
+				selector);
 		uploadAlgorithm = new TorrentStdPieceUploadAlgorithm(manager);
 	}
 

@@ -28,8 +28,16 @@ import net.torrent.torrent.piece.PieceSelector;
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
 public class TorrentStdInterestAlgorithm implements TorrentInterestAlgorithm {
+	/**
+	 * The torrent manager
+	 */
 	@SuppressWarnings("unused")
 	private final TorrentManager manager;
+
+	/**
+	 * This selector is used to find the next piece to be downloaded. Parts are
+	 * managed inside this algorithm.
+	 */
 	private final PieceSelector selector;
 
 	/**
@@ -37,22 +45,20 @@ public class TorrentStdInterestAlgorithm implements TorrentInterestAlgorithm {
 	 * 
 	 * @param manager
 	 *            the manager
-	 * @param pieceSelector
+	 * @param selector
 	 *            the piece selector
 	 */
 	public TorrentStdInterestAlgorithm(TorrentManager manager,
-			PieceSelector pieceSelector) {
+			PieceSelector selector) {
 		this.manager = manager;
-		this.selector = pieceSelector;
+		this.selector = selector;
 	}
 
 	@Override
 	public InterestState interested(TorrentPeer peer) {
 		int pieces = selector.countPieces(peer);
-		if(pieces >= 5)
+		if (pieces >= 5)
 			return InterestState.INTERESTED;
-		
-		
 		return InterestState.INTERESTED;
 	}
 
