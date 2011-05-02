@@ -37,6 +37,7 @@ import net.torrent.protocol.peerwire.message.PieceMessage;
 import net.torrent.protocol.peerwire.message.RequestMessage;
 import net.torrent.protocol.peerwire.message.UnchokeMessage;
 import net.torrent.protocol.peerwire.message.fast.AllowedFastMessage;
+import net.torrent.protocol.peerwire.message.fast.RejectMessage;
 import net.torrent.protocol.peerwire.message.fast.SuggestPieceMessage;
 import net.torrent.torrent.Torrent;
 import net.torrent.torrent.TorrentPart;
@@ -66,6 +67,7 @@ import org.jboss.netty.handler.timeout.IdleStateEvent;
  * 
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
+// TODO separate extensions handler from algorithm handler
 public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 	/**
 	 * The torrent manager
@@ -120,7 +122,7 @@ public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 		peer.handshake(manager.getTorrent().getInfoHash().toByteArray(),
 				"-TR2050-mcm14ye4h2mq".getBytes(), manager.getContext()
 						.getCapabilites().toBitSet());
-		peer.port((short) 1541);
+		// peer.port((short) 1541);
 		super.channelConnected(ctx, e);
 	}
 
@@ -184,6 +186,12 @@ public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 			final Torrent torrent = manager.getTorrent();
 			final TorrentPiece piece = torrent.getPiece(suggest.getPiece());
 			suggested(peer, piece);
+		} else if (msg instanceof RejectMessage) {
+			final RejectMessage request = (RejectMessage) msg;
+			final Torrent torrent = manager.getTorrent();
+			final TorrentPart part = torrent.getPart(request.getIndex(),
+					request.getStart(), request.getLength());
+			rejected(peer, part);
 		}
 		super.messageReceived(ctx, e);
 	}
@@ -218,7 +226,7 @@ public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 			peer.interested();
 			return;
 		case UNINTERESTED:
-			testChoke(peer);
+			peer.uninterested();
 			return;
 		}
 	}
@@ -482,5 +490,28 @@ public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 		if (part == null)
 			return;
 		download(peer, part);
+	}
+
+	private void rejected(PeerWirePeer peer, TorrentPart part) {
+		switch (downloadAlgorithm.rejected(peer.getTorrentPeer(), part)) {
+		case DISCONNECT:
+			peer.disconnect();
+			break;
+		case CONNECT_NEW_PEER:
+			peer.disconnect();
+			connect(peerAlgorithm.connect());
+			break;
+		case NOT_INTERESTED:
+			peer.uninterested();
+			break;
+		case RETRY:
+			download(peer, part);
+			break;
+		case TRY_ANOTHER_PIECE:
+			final TorrentPart nextPart = downloadAlgorithm.getNextPart(
+					peer.getTorrentPeer(), part);
+			download(peer, nextPart);
+			break;
+		}
 	}
 }

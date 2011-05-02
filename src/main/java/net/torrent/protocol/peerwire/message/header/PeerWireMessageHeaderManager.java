@@ -13,29 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.torrent.protocol.peerwire.codec;
+package net.torrent.protocol.peerwire.message.header;
 
-import java.io.IOException;
-
-import org.jboss.netty.buffer.ChannelBuffer;
+import net.torrent.protocol.peerwire.codec.PeerWireReadableMessage;
 
 /**
- * An writable message in the BitTorrent protocol
+ * The message header manager return the message to each given message id (aka
+ * opcode).
  * 
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
-public interface PeerWireWritableMessage {
+public interface PeerWireMessageHeaderManager {
 	/**
-	 * Write the content of the message to this buffer.
+	 * Return the message for an given <tt>id</tt>. If this handler cannot
+	 * handle the message id, <b>null</b> must be returned.
 	 * 
-	 * @param buffer
-	 *            the buffer
-	 * @throws IOException
+	 * @param id
+	 *            the message id
+	 * @return the message, <tt>null</tt> if <tt>id</tt> is unknown.
 	 */
-	void write(ChannelBuffer buffer) throws IOException;
-
-	/**
-	 * @return the length of the message
-	 */
-	int length();
+	PeerWireReadableMessage getMessage(byte id);
 }

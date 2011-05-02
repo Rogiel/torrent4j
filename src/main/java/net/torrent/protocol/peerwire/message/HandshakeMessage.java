@@ -74,16 +74,7 @@ public class HandshakeMessage implements PeerWireWritableMessage,
 				}
 			}
 		}
-		System.out.println(reserved);
-		// int bit = 0;
-		// for (int i = 0; i < 8; i++) {
-		// byte b = buffer.readByte();
-		// for (int j = 128; j > 0; j >>= 1) {
-		// reserved.set(bit++, (b & j) != 0);
-		// }
-		// }
 
-		// this.reserved = buffer.readBytes(8).array();
 		this.infohash = buffer.readBytes(20).array();
 		this.peerId = buffer.readBytes(20).array();
 	}
@@ -106,6 +97,11 @@ public class HandshakeMessage implements PeerWireWritableMessage,
 		// buffer.writeBytes(reserved);
 		buffer.writeBytes(this.infohash);
 		buffer.writeBytes(this.peerId);
+	}
+
+	@Override
+	public int length() {
+		return 1 + pstrlen + pstr.length() + 8 + infohash.length + peerId.length;
 	}
 
 	public int getPstrlen() {

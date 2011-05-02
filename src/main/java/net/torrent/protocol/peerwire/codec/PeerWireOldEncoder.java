@@ -29,7 +29,8 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
  * 
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
-public class PeerWireEncoder extends OneToOneEncoder {
+@Deprecated
+public class PeerWireOldEncoder extends OneToOneEncoder {
 	@Override
 	protected Object encode(ChannelHandlerContext ctx, Channel channel,
 			Object msg) throws Exception {

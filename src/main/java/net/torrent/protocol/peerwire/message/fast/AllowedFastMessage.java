@@ -68,7 +68,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  */
 public class AllowedFastMessage implements PeerWireWritableMessage,
 		PeerWireReadableMessage {
-	public static final byte MESSAGE_ID = 0x0D;
+	public static final byte MESSAGE_ID = 0x11;
 
 	/**
 	 * The pieces indexes
@@ -96,6 +96,11 @@ public class AllowedFastMessage implements PeerWireWritableMessage,
 		for (final int piece : pieces) {
 			buffer.writeInt(piece);
 		}
+	}
+	
+	@Override
+	public int length() {
+		return 1 + pieces.length * 4;
 	}
 
 	public int[] getPieces() {

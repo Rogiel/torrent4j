@@ -15,18 +15,13 @@
  */
 package net.torrent.protocol.peerwire.codec;
 
-import net.torrent.protocol.peerwire.message.BitfieldMessage;
-import net.torrent.protocol.peerwire.message.CancelMessage;
-import net.torrent.protocol.peerwire.message.ChokeMessage;
+import java.util.Arrays;
+
+import net.torrent.protocol.peerwire.PeerWireState;
 import net.torrent.protocol.peerwire.message.HandshakeMessage;
-import net.torrent.protocol.peerwire.message.HaveMessage;
-import net.torrent.protocol.peerwire.message.InterestedMessage;
 import net.torrent.protocol.peerwire.message.KeepAliveMessage;
-import net.torrent.protocol.peerwire.message.NotInterestedMessage;
-import net.torrent.protocol.peerwire.message.PieceMessage;
-import net.torrent.protocol.peerwire.message.PortMessage;
-import net.torrent.protocol.peerwire.message.RequestMessage;
-import net.torrent.protocol.peerwire.message.UnchokeMessage;
+import net.torrent.protocol.peerwire.message.header.PeerWireMessageHeaderManager;
+import net.torrent.protocol.peerwire.message.header.PeerWireSpecificationMessageHeaderManager;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
@@ -48,16 +43,39 @@ import org.jboss.netty.handler.codec.frame.FrameDecoder;
  * cached.
  * 
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
+ * @see PeerWireOldDecoder#state
  */
-public class PeerWireDecoder extends FrameDecoder {
-	private boolean handshaked = false;
+@Deprecated
+public class PeerWireOldDecoder extends FrameDecoder {
+	/**
+	 * This connection state. This need to be shared with other encoders or
+	 * decoders. But more importantly <b>NEVER</b> share the same instance
+	 * across more than one {@link Channel}.
+	 */
+	private final PeerWireState state;
+
+	/**
+	 * The is an list of handlers that will create message instances for each
+	 * message id passed as argument.
+	 */
+	private PeerWireMessageHeaderManager[] handlers = new PeerWireMessageHeaderManager[] { PeerWireSpecificationMessageHeaderManager.SHARED_INSTANCE };
+
+	/**
+	 * Creates a new instance of this decoder
+	 * 
+	 * @param state
+	 *            the connection state
+	 */
+	public PeerWireOldDecoder(final PeerWireState state) {
+		this.state = state;
+	}
 
 	@Override
 	protected Object decode(ChannelHandlerContext ctx, Channel channel,
 			ChannelBuffer buffer) throws Exception {
 		buffer.markReaderIndex();
 
-		if (!handshaked) {
+		if (!state.hasHandshaked()) {
 			if (buffer.readableBytes() <= 47) // at least 47 bytes
 				return null;
 
@@ -70,7 +88,7 @@ public class PeerWireDecoder extends FrameDecoder {
 
 			final HandshakeMessage message = new HandshakeMessage();
 			message.read(buffer);
-			handshaked = true;
+			state.setHandshaked(true);
 
 			return message;
 		} else {
@@ -98,8 +116,21 @@ public class PeerWireDecoder extends FrameDecoder {
 	}
 
 	/**
-	 * Return the message represented by <tt>id</tt>. Will return null if
-	 * message id is unknown.
+	 * Adds a new message handler to this decoder
+	 * 
+	 * @param handler
+	 *            the handler
+	 */
+	public void addMessageHandler(PeerWireMessageHeaderManager handler) {
+		Arrays.copyOf(this.handlers, (this.handlers.length + 1));
+		this.handlers[(this.handlers.length - 1)] = handler;
+	}
+
+	/**
+	 * Return the message represented by <tt>id</tt>.
+	 * <p>
+	 * Iterate over all <tt>handlers</tt> and try to locate the message. Will
+	 * return null if message id is unknown.
 	 * 
 	 * @param id
 	 *            the id of the message
@@ -107,37 +138,12 @@ public class PeerWireDecoder extends FrameDecoder {
 	 */
 	private PeerWireReadableMessage getMessage(byte id) {
 		PeerWireReadableMessage message = null;
-		switch (id) {
-		case BitfieldMessage.MESSAGE_ID:
-			message = new BitfieldMessage();
-			break;
-		case CancelMessage.MESSAGE_ID:
-			message = new CancelMessage();
-			break;
-		case ChokeMessage.MESSAGE_ID:
-			message = new ChokeMessage();
-			break;
-		case HaveMessage.MESSAGE_ID:
-			message = new HaveMessage();
-			break;
-		case InterestedMessage.MESSAGE_ID:
-			message = new InterestedMessage();
-			break;
-		case NotInterestedMessage.MESSAGE_ID:
-			message = new NotInterestedMessage();
-			break;
-		case PieceMessage.MESSAGE_ID:
-			message = new PieceMessage();
-			break;
-		case PortMessage.MESSAGE_ID:
-			message = new PortMessage();
-			break;
-		case RequestMessage.MESSAGE_ID:
-			message = new RequestMessage();
-			break;
-		case UnchokeMessage.MESSAGE_ID:
-			message = new UnchokeMessage();
-			break;
+		for (final PeerWireMessageHeaderManager handler : handlers) {
+			if (handler == null)
+				continue;
+			message = handler.getMessage(id);
+			if (message != null)
+				break;
 		}
 		return message;
 	}

@@ -65,6 +65,50 @@ public interface TorrentPieceDownloadAlgorithm {
 	TorrentPart allowedFast(TorrentPeer peer, TorrentPiece piece);
 
 	/**
+	 * Issued when the peer has rejected our request.
+	 * 
+	 * @param peer
+	 *            the rejecting peer
+	 * @param part
+	 *            the rejected part
+	 * @see RejectAction
+	 */
+	RejectAction rejected(TorrentPeer peer, TorrentPart part);
+
+	public enum RejectAction {
+		/**
+		 * Only disconnects the peer, does not initiate a new connection with
+		 * anyone.
+		 */
+		DISCONNECT,
+
+		/**
+		 * Disconnects the current peer and connects a new one
+		 */
+		CONNECT_NEW_PEER,
+
+		/**
+		 * Choke this peer
+		 */
+		NOT_INTERESTED,
+		
+		/**
+		 * Request again the same part
+		 */
+		RETRY,
+
+		/**
+		 * Try to download another piece
+		 */
+		TRY_ANOTHER_PIECE,
+
+		/**
+		 * Do nothing, ignore. Might cause peer to become idle.
+		 */
+		IGNORE;
+	}
+
+	/**
 	 * Test if an certain piece has all its parts already download. If true, a
 	 * checksum will be performed and a message informing we have this piece
 	 * will be broadcasted. This call is only valid once the next part has

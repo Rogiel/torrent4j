@@ -104,6 +104,11 @@ public class BitfieldMessage implements PeerWireWritableMessage,
 		}
 	}
 
+	@Override
+	public int length() {
+		return bitfield.size() / 8 + 1;
+	}
+
 	public BitSet getBitfield() {
 		return bitfield;
 	}

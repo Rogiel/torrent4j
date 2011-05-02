@@ -35,10 +35,10 @@ public class TorrentContext {
 	private final TorrentBitfield bitfield = new TorrentBitfield(this);
 
 	/**
-	 * The capabilities
+	 * The capabilities supported in this context
 	 */
 	private final TorrentPeerCapabilities capabilites = new TorrentPeerCapabilities(
-			TorrentPeerCapability.DHT, TorrentPeerCapability.FAST_PEERS);
+			TorrentPeerCapability.DHT);
 
 	private final Set<TorrentPeer> peers = new HashSet<TorrentPeer>();
 	/**

@@ -61,6 +61,11 @@ public class PortMessage implements PeerWireWritableMessage,
 		buffer.writeByte(MESSAGE_ID);
 		buffer.writeShort(port);
 	}
+	
+	@Override
+	public int length() {
+		return 3;
+	}
 
 	public short getPort() {
 		return port;

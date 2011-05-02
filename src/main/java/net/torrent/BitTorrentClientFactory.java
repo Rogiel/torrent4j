@@ -27,6 +27,8 @@ import net.torrent.protocol.peerwire.PeerWireManager;
 import net.torrent.protocol.peerwire.manager.TorrentManager;
 import net.torrent.torrent.Torrent;
 import net.torrent.torrent.context.TorrentContext;
+import net.torrent.torrent.piece.PieceSelector;
+import net.torrent.torrent.piece.RandomPieceSelector;
 
 /**
  * Factory class for {@link BitTorrentClient}.
@@ -55,6 +57,10 @@ public class BitTorrentClientFactory {
 	 * The torrent algorithm
 	 */
 	private TorrentAlgorithm algorithm;
+	/**
+	 * The piece selector
+	 */
+	private PieceSelector selector;
 
 	/**
 	 * Creates a new standard {@link BitTorrentClient BitTorrent client}
@@ -78,10 +84,12 @@ public class BitTorrentClientFactory {
 	 *            the torrent
 	 */
 	public BitTorrentClientFactory(final Torrent torrent) {
-		context = new TorrentContext(torrent);
-		datastore = new PlainTorrentDatastore(new File("store.bin"));
-		manager = new TorrentManager(context, datastore);
-		algorithm = new TorrentStdAlgorithm(manager);
+		this.context = new TorrentContext(torrent);
+		this.datastore = new PlainTorrentDatastore(new File("store.bin"));
+		this.manager = new TorrentManager(context, datastore);
+		if (this.selector == null)
+			this.selector = new RandomPieceSelector(manager);
+		this.algorithm = new TorrentStdAlgorithm(manager, selector);
 	}
 
 	/**
@@ -110,10 +118,12 @@ public class BitTorrentClientFactory {
 	 */
 	public BitTorrentClientFactory(final Torrent torrent,
 			TorrentDatastore datastore) {
-		context = new TorrentContext(torrent);
+		this.context = new TorrentContext(torrent);
 		this.datastore = datastore;
-		manager = new TorrentManager(context, datastore);
-		algorithm = new TorrentStdAlgorithm(manager);
+		this.manager = new TorrentManager(context, datastore);
+		if (this.selector == null)
+			this.selector = new RandomPieceSelector(manager);
+		this.algorithm = new TorrentStdAlgorithm(manager, selector);
 	}
 
 	/**
@@ -128,9 +138,9 @@ public class BitTorrentClientFactory {
 	 */
 	public BitTorrentClientFactory(final Torrent torrent,
 			TorrentDatastore datastore, final TorrentAlgorithm algorithm) {
-		context = new TorrentContext(torrent);
+		this.context = new TorrentContext(torrent);
 		this.datastore = datastore;
-		manager = new TorrentManager(context, datastore);
+		this.manager = new TorrentManager(context, datastore);
 		this.algorithm = algorithm;
 	}
 

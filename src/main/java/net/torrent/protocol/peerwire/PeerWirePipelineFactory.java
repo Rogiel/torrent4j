@@ -16,8 +16,11 @@
 package net.torrent.protocol.peerwire;
 
 import static org.jboss.netty.channel.Channels.pipeline;
-import net.torrent.protocol.peerwire.codec.PeerWireDecoder;
-import net.torrent.protocol.peerwire.codec.PeerWireEncoder;
+import net.torrent.protocol.peerwire.codec.PeerWireFrameDecoder;
+import net.torrent.protocol.peerwire.codec.PeerWireFrameEncoder;
+import net.torrent.protocol.peerwire.codec.PeerWireMessageDecoder;
+import net.torrent.protocol.peerwire.codec.PeerWireMessageEncoder;
+import net.torrent.protocol.peerwire.handler.PeerWireCodecHandler;
 import net.torrent.protocol.peerwire.handler.PeerWireManagerHeadHandler;
 import net.torrent.protocol.peerwire.handler.PeerWireManagerTailHandler;
 import net.torrent.protocol.peerwire.manager.TorrentManager;
@@ -38,7 +41,8 @@ public class PeerWirePipelineFactory implements ChannelPipelineFactory {
 	 * The logging handler
 	 */
 	private final LoggingHandler loggingHandler = new LoggingHandler(
-			InternalLogLevel.WARN);
+			InternalLogLevel.INFO);
+
 	/**
 	 * The algorithm handler
 	 */
@@ -70,15 +74,28 @@ public class PeerWirePipelineFactory implements ChannelPipelineFactory {
 	@Override
 	public ChannelPipeline getPipeline() throws Exception {
 		final ChannelPipeline pipeline = pipeline();
+		final PeerWireState state = new PeerWireState();
 
-		// TODO create traffic shape handler
-		// TODO create firewall handler - block connections from unwanted peers
+		// TODO create traffic shape handler once Netty 4.0 is released
+		// TODO create firewall handler - block connections from unwanted peers.
 
-		pipeline.addLast("decoder", new PeerWireDecoder());
-		pipeline.addLast("encoder", new PeerWireEncoder());
+		// pipeline.addLast("old.decoder", new PeerWireOldDecoder(state));
+		// pipeline.addLast("old.encoder", new PeerWireOldEncoder());
 
+		// frame (or header) codec
+		pipeline.addLast("frame.decoder", new PeerWireFrameDecoder(state));
+		pipeline.addLast("frame.encoder", new PeerWireFrameEncoder(state));
+
+		// message codec
+		pipeline.addLast("message.decoder", new PeerWireMessageDecoder(state));
+		pipeline.addLast("message.encoder", new PeerWireMessageEncoder());
+
+		pipeline.addLast("codec.handler", new PeerWireCodecHandler(state));
+
+		// logging handler (before any other handler can take action)
 		pipeline.addLast("logging", loggingHandler);
 
+		// handlers
 		pipeline.addLast("head-handler", headManagerHandler);
 		pipeline.addLast("algorithm", algorithmHandler);
 		pipeline.addLast("tail-handler", tailManagerHandler);

@@ -33,6 +33,7 @@ import net.torrent.torrent.piece.RandomPieceSelector;
  * 
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
+// TODO separate standard algorithm from extension ones
 public class TorrentStdPieceDownloadAlgorithm implements
 		TorrentPieceDownloadAlgorithm {
 	/**
@@ -61,12 +62,13 @@ public class TorrentStdPieceDownloadAlgorithm implements
 	 * @param manager
 	 *            the torrent manager instance. With this object is possible to
 	 *            retrieve current downloads/uploads and connections.
+	 * @param selector
+	 *            the piece selector
 	 */
-	public TorrentStdPieceDownloadAlgorithm(TorrentManager manager) {
+	public TorrentStdPieceDownloadAlgorithm(TorrentManager manager,
+			PieceSelector selector) {
 		this.manager = manager;
-		// this.context = this.manager.getContext();
-		// this.torrent = this.manager.getTorrent();
-		selector = new RandomPieceSelector(manager);
+		this.selector = selector;
 	}
 
 	@Override
@@ -94,6 +96,11 @@ public class TorrentStdPieceDownloadAlgorithm implements
 	@Override
 	public TorrentPart allowedFast(TorrentPeer peer, TorrentPiece piece) {
 		return piece.getFirstPart();
+	}
+
+	@Override
+	public RejectAction rejected(TorrentPeer peer, TorrentPart part) {
+		return RejectAction.TRY_ANOTHER_PIECE;
 	}
 
 	@Override

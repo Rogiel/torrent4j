@@ -69,6 +69,11 @@ public class SuggestPieceMessage implements PeerWireWritableMessage,
 		buffer.writeByte(MESSAGE_ID);
 		buffer.writeInt(piece);
 	}
+	
+	@Override
+	public int length() {
+		return 5;
+	}
 
 	public int getPiece() {
 		return piece;
