@@ -65,7 +65,6 @@ public class ScoredPieceSelector extends SortedListPieceSelector {
 	protected void sort(List<TorrentPiece> pieces) {
 		if (comparator != null)
 			Collections.sort(pieces, comparator);
-		System.out.println(pieces);
 	}
 
 	@Override

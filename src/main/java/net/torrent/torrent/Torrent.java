@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -340,8 +341,12 @@ public class Torrent {
 		if (in == null)
 			throw new InvalidParameterException("InputStream cannot be null");
 
-		final BMap map = (BMap) new BEncodedInputStream(in).readElement();
-		return new Torrent(map);
+		try {
+			final BMap map = (BMap) new BEncodedInputStream(in).readElement();
+			return new Torrent(map);
+		} finally {
+			in.close();
+		}
 	}
 
 	/**
@@ -358,5 +363,20 @@ public class Torrent {
 		if (file == null)
 			throw new InvalidParameterException("File cannot be null");
 		return load(new FileInputStream(file));
+	}
+
+	/**
+	 * Load an torrent from an {@link File}
+	 * 
+	 * @param url
+	 *            the {@link URL}
+	 * @return the loaded {@link Torrent} instance
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	public static Torrent load(URL url) throws IOException, URISyntaxException {
+		if (url == null)
+			throw new InvalidParameterException("File cannot be null");
+		return load(url.openStream());
 	}
 }

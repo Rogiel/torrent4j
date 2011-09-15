@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.torrent.protocol.algorithm.TorrentPieceDownloadAlgorithm;
-import net.torrent.protocol.algorithm.impl.TorrentStdAlgorithm.TorrentStdAlgorithmContext;
 import net.torrent.protocol.peerwire.manager.TorrentManager;
 import net.torrent.torrent.TorrentPart;
 import net.torrent.torrent.TorrentPiece;
@@ -34,16 +33,12 @@ import net.torrent.torrent.piece.PieceSelector;
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
 // TODO separate standard algorithm from extension ones
-public class TorrentStdPieceDownloadAlgorithm implements
+public class TorrentTestPieceDownloadAlgorithm implements
 		TorrentPieceDownloadAlgorithm {
 	/**
 	 * The torrent manager
 	 */
 	private final TorrentManager manager;
-	/**
-	 * The algorithm context
-	 */
-	private final TorrentStdAlgorithmContext context;
 
 	/**
 	 * This selector is used to find the next piece to be downloaded. Parts are
@@ -69,10 +64,9 @@ public class TorrentStdPieceDownloadAlgorithm implements
 	 * @param selector
 	 *            the piece selector
 	 */
-	public TorrentStdPieceDownloadAlgorithm(TorrentManager manager,TorrentStdAlgorithmContext context,
+	public TorrentTestPieceDownloadAlgorithm(TorrentManager manager,
 			PieceSelector selector) {
 		this.manager = manager;
-		this.context = context;
 		this.selector = selector;
 	}
 

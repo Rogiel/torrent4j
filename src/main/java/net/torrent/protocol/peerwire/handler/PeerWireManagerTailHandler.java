@@ -30,6 +30,8 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handles post-algorithm handler stuff.
@@ -39,6 +41,11 @@ import org.jboss.netty.channel.SimpleChannelHandler;
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
 public class PeerWireManagerTailHandler extends SimpleChannelHandler {
+	/**
+	 * The logger instance
+	 */
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	
 	/**
 	 * The torrent manager
 	 */
@@ -64,12 +71,18 @@ public class PeerWireManagerTailHandler extends SimpleChannelHandler {
 			final Torrent torrent = manager.getTorrent();
 			final TorrentPart part = torrent.getPart(pieceMsg.getIndex(),
 					pieceMsg.getStart(), pieceMsg.getLength());
+			
+			log.debug("Removing {} from download queue", part);
+			
 			manager.getDownloadManager().remove(part);
 		} else if (msg instanceof RejectMessage) {
 			final RejectMessage reject = (RejectMessage) msg;
 			final Torrent torrent = manager.getTorrent();
 			final TorrentPart part = torrent.getPart(reject.getIndex(),
 					reject.getStart(), reject.getLength());
+			
+			log.debug("Removing {} from download queue", part);
+			
 			manager.getDownloadManager().remove(part);
 		}
 		super.messageReceived(ctx, e);
@@ -87,11 +100,15 @@ public class PeerWireManagerTailHandler extends SimpleChannelHandler {
 			final Torrent torrent = manager.getContext().getTorrent();
 			final TorrentPart part = torrent.getPart(message.getIndex(),
 					message.getStart(), message.getLength());
+			
+			log.debug("Adding {} to upload queue", part);
+			
 			manager.getUploadManager().add(part, peer.getTorrentPeer());
 			e.getFuture().addListener(new ChannelFutureListener() {
 				@Override
 				public void operationComplete(ChannelFuture future)
 						throws Exception {
+					log.debug("Removing {} from upload queue", part);
 					manager.getUploadManager().remove(part);
 				}
 			});
@@ -100,6 +117,9 @@ public class PeerWireManagerTailHandler extends SimpleChannelHandler {
 			final Torrent torrent = manager.getContext().getTorrent();
 			final TorrentPart part = torrent.getPart(message.getIndex(),
 					message.getStart(), message.getLength());
+			
+			log.debug("Adding {} to download queue", part);
+			
 			manager.getDownloadManager().add(part, peer.getTorrentPeer());
 		} else if (msg instanceof CancelMessage) {
 			final CancelMessage message = (CancelMessage) msg;
@@ -110,6 +130,7 @@ public class PeerWireManagerTailHandler extends SimpleChannelHandler {
 				@Override
 				public void operationComplete(ChannelFuture future)
 						throws Exception {
+					log.debug("Removing {} from download queue", part);
 					manager.getDownloadManager().remove(part);
 				}
 			});
@@ -124,7 +145,9 @@ public class PeerWireManagerTailHandler extends SimpleChannelHandler {
 		final PeerWirePeer peer = manager.getPeerManager().update(
 				e.getChannel());
 		if (peer.getTorrentPeer() != null) {
+			log.debug("Removing all peer {} pieces from download queue", peer);
 			manager.getDownloadManager().remove(peer.getTorrentPeer());
+			log.debug("Removing all peer {} pieces from upload queue", peer);
 			manager.getUploadManager().remove(peer.getTorrentPeer());
 		}
 		super.channelDisconnected(ctx, e);
@@ -137,7 +160,9 @@ public class PeerWireManagerTailHandler extends SimpleChannelHandler {
 		final PeerWirePeer peer = manager.getPeerManager().remove(
 				e.getChannel());
 		if (peer.getTorrentPeer() != null) {
+			log.debug("Removing all peer {} pieces from download queue", peer);
 			manager.getDownloadManager().remove(peer.getTorrentPeer());
+			log.debug("Removing all peer {} pieces from upload queue", peer);
 			manager.getUploadManager().remove(peer.getTorrentPeer());
 		}
 		super.channelClosed(ctx, e);

@@ -15,15 +15,23 @@
  */
 package net.torrent;
 
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import net.torrent.protocol.algorithm.TorrentAlgorithm;
 import net.torrent.protocol.peerwire.PeerWireManager;
 import net.torrent.protocol.peerwire.manager.TorrentManager;
+import net.torrent.protocol.tracker.HttpTorrentTrackerAnnouncer;
 import net.torrent.torrent.context.TorrentContext;
 import net.torrent.torrent.context.TorrentPeer;
+
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the main class used to controll your torrent transfer. It is not
@@ -33,6 +41,11 @@ import net.torrent.torrent.context.TorrentPeer;
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
 public class BitTorrentClient implements Runnable {
+	/**
+	 * The logger instance
+	 */
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+
 	/**
 	 * Configuration of an BitTorrentClient.
 	 */
@@ -100,8 +113,21 @@ public class BitTorrentClient implements Runnable {
 		if (config.getListenPort() > 0)
 			peerWire.listen(config.getListenPort());
 
+		final HttpTorrentTrackerAnnouncer announcer = new HttpTorrentTrackerAnnouncer(
+				context.getSwarm());
+		try {
+			announcer.announce(context.getTorrent().getTrackers().iterator()
+					.next());
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		// run every 10 seconds - only 1 connection per turn
-		connectorTimer.schedule(new ConnectorTimerTask(), 0, 10 * 1000);
+				connectorTimer.schedule(new ConnectorTimerTask(), 0 * 1000, 2 * 1000);
 
 		if (addrs != null)
 			for (final InetSocketAddress addr : addrs) {
@@ -121,8 +147,17 @@ public class BitTorrentClient implements Runnable {
 		public void run() {
 			TorrentPeer peer = null;
 			while ((peer = algorithm.getPeerAlgorithm().connect()) != null) {
-				peerWire.connect(peer.getSocketAddress());
+				log.debug("Connecting to {}", peer);
+				try {
+					if (!peerWire.connect(peer.getSocketAddress()).await()
+							.isSuccess()) {
+						peer.setAccessible(false);
+					}
+				} catch (InterruptedException e) {
+				}
+				return;
 			}
+			log.debug("No new peers to connect");
 		}
 	}
 

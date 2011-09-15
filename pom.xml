@@ -5,7 +5,7 @@
 	<artifactId>libtorrent</artifactId>
 	<packaging>jar</packaging>
 	<name>libtorrent</name>
-	<version>1.0.0-alpha2</version>
+	<version>1.0.0-alpha2.1</version>
 	<description>Java library used for downloading and uploading torrent files</description>
 	<url>http://code.google.com/p/libtorrent-java</url>
 
@@ -35,6 +35,11 @@
 			<version>3.2.4.Final</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.2</version>
+		</dependency>
 		<!-- <dependency> -->
 		<!-- <groupId>org.jboss.netty</groupId> -->
 		<!-- <artifactId>netty</artifactId> -->
@@ -47,12 +52,18 @@
 			<artifactId>junit</artifactId>
 			<version>4.8.2</version>
 			<type>jar</type>
-			<scope>compile</scope>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>1.6.2</version>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 
 	<build>
-		<defaultGoal>package</defaultGoal>
+		<defaultGoal>assembly</defaultGoal>
 
 		<plugins>
 			<plugin>
@@ -68,6 +79,15 @@
 						</goals>
 					</execution>
 				</executions>
+
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -97,30 +117,34 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- <plugin> -->
+			<!-- <groupId>org.apache.maven.plugins</groupId> -->
+			<!-- <artifactId>maven-clean-plugin</artifactId> -->
+			<!-- <version>2.4.1</version> -->
+			<!-- <executions> -->
+			<!-- <execution> -->
+			<!-- <id>clean</id> -->
+			<!-- <phase>package</phase> -->
+			<!-- <goals> -->
+			<!-- <goal>clean</goal> -->
+			<!-- </goals> -->
+			<!-- </execution> -->
+			<!-- </executions> -->
+			<!-- </plugin> -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pdf-plugin</artifactId>
-				<version>1.1</version>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptors>
+						<descriptor>src/assembly/distribution-bin.xml</descriptor>
+					</descriptors>
+				</configuration>
 				<executions>
 					<execution>
-						<id>pdf</id>
+						<id>jar</id>
 						<phase>package</phase>
 						<goals>
-							<goal>pdf</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-clean-plugin</artifactId>
-				<version>2.4.1</version>
-				<executions>
-					<execution>
-						<id>clean</id>
-						<phase>package</phase>
-						<goals>
-							<goal>clean</goal>
+							<goal>assembly</goal>
 						</goals>
 					</execution>
 				</executions>

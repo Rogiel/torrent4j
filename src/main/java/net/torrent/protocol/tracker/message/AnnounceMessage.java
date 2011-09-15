@@ -57,7 +57,7 @@ public class AnnounceMessage implements TorrentTrackerRequestMessage {
 	}
 
 	private String ip;
-	private Integer numWant = 10;
+	private Integer numWant = 100;
 	private String key = "avtbyit8";
 	private String trackerId;
 
@@ -114,19 +114,20 @@ public class AnnounceMessage implements TorrentTrackerRequestMessage {
 		add(builder, "downloaded", Long.toString(downloaded));
 		add(builder, "left", Long.toString(left));
 
-		add(builder, "compact", compact);
-		add(builder, "no_peer_id", noPeerId);
+		//add(builder, "compact", compact);
+		//add(builder, "no_peer_id", noPeerId);
 		if (event != Event.UPDATE)
 			add(builder, "event", event.urlArg());
 
 		add(builder, "ip", ip);
 		add(builder, "numwant", numWant);
-		add(builder, "key", key);
-		add(builder, "trackerid", trackerId);
+		//add(builder, "key", key);
+		//add(builder, "trackerid", trackerId);
 
 		builder.setLength(builder.length() - 1);// trim last character it is an
 												// unnecessary &.
 		final URL url = new URL(builder.toString());
+		System.out.println(builder.toString());
 
 		return new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
 				url.getPath() + "?" + url.getQuery());
@@ -136,25 +137,21 @@ public class AnnounceMessage implements TorrentTrackerRequestMessage {
 			throws UnsupportedEncodingException {
 		if (value == null)
 			return;
-		builder.append(key + "=" + value).append("&");
+		builder.append(key + "=" + URLEncoder.encode(value, "ISO-8859-1").replace("*", "%2a")).append("&");
 	}
 
 	private void add(StringBuilder builder, String key, byte[] value)
 			throws UnsupportedEncodingException {
 		if (value == null)
 			return;
-		add(builder, key, URLEncoder.encode(new String(value), "ISO-8859-1")
-				.replaceAll("\\+", "%20"));
+		add(builder, key, new String(value, "ISO-8859-1"));
 	}
 
 	private void addLowerCase(StringBuilder builder, String key, byte[] value)
 			throws UnsupportedEncodingException {
 		if (value == null)
 			return;
-		add(builder, key,
-				URLEncoder
-						.encode(new String(value, "ISO-8859-1"), "ISO-8859-1")
-						.replaceAll("\\+", "%20").toLowerCase());
+		add(builder, key, new String(value, "ISO-8859-1"));
 	}
 
 	private void add(StringBuilder builder, String key, Number value)

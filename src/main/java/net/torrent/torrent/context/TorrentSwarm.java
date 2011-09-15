@@ -62,6 +62,17 @@ public class TorrentSwarm implements Iterable<TorrentPeer> {
 	}
 
 	/**
+	 * Add an given peers to the swarm
+	 * 
+	 * @param peers
+	 *            the peers
+	 * @return true if was not present in swarm
+	 */
+	public boolean add(List<TorrentPeer> peers) {
+		return this.peers.addAll(peers);
+	}
+
+	/**
 	 * Removes an given peer from the swarm
 	 * 
 	 * @param peer
@@ -129,6 +140,44 @@ public class TorrentSwarm implements Iterable<TorrentPeer> {
 				return peer;
 		}
 		return null;
+	}
+
+	/**
+	 * Get an peer by its address
+	 * 
+	 * @return an random peer
+	 */
+	public TorrentPeer getRandomPeer() {
+		if (peers.size() == 0)
+			return null;
+		return peers.get((int) (Math.random() * (peers.size() - 1)));
+	}
+
+	/**
+	 * Get an peer by its address
+	 * 
+	 * @return an random peer
+	 */
+	public TorrentPeer getRandomOfflinePeer() {
+		List<TorrentPeer> accessiblePeers = new ArrayList<TorrentPeer>();
+		List<TorrentPeer> nonAccessiblePeers = new ArrayList<TorrentPeer>();
+		for (final TorrentPeer peer : peers) {
+			if (peer.isConnected()) {
+				if (peer.isAccessible()) {
+					accessiblePeers.add(peer);
+				} else {
+					nonAccessiblePeers.add(peer);
+				}
+			}
+		}
+
+		List<TorrentPeer> peerList = accessiblePeers;
+
+		if (peerList.size() == 0)
+			peerList = nonAccessiblePeers;
+		if (peerList.size() == 0)
+			return null;
+		return peerList.get((int) (Math.random() * (peerList.size() - 1)));
 	}
 
 	/**

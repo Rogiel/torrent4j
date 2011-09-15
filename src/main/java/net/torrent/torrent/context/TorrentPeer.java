@@ -18,6 +18,8 @@ package net.torrent.torrent.context;
 import java.net.InetSocketAddress;
 import java.util.Date;
 
+import net.torrent.protocol.peerwire.PeerWirePeer;
+
 /**
  * Object representing a peer in the swarm.
  * 
@@ -117,6 +119,8 @@ public class TorrentPeer {
 	 * false. By default all peers are accessible.
 	 */
 	private boolean accessible = true;
+
+	private PeerWirePeer peerWirePeer;
 
 	/**
 	 * Creates a new peer
@@ -313,6 +317,28 @@ public class TorrentPeer {
 		this.accessible = accessible;
 	}
 
+	
+
+	/**
+	 * @return the peerWirePeer
+	 */
+	public PeerWirePeer getPeerWirePeer() {
+		return peerWirePeer;
+	}
+
+	/**
+	 * @param peerWirePeer the peerWirePeer to set
+	 */
+	public void setPeerWirePeer(PeerWirePeer peerWirePeer) {
+		this.peerWirePeer = peerWirePeer;
+	}
+
+	public boolean isConnected() {
+		if(this.peerWirePeer == null)
+			return false;
+		return true;
+	}
+	
 	/**
 	 * Get the torrent context
 	 * 

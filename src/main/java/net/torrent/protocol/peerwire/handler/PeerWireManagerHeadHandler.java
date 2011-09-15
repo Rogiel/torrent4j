@@ -21,7 +21,6 @@ import net.torrent.protocol.peerwire.PeerWirePeer;
 import net.torrent.protocol.peerwire.manager.TorrentManager;
 import net.torrent.protocol.peerwire.message.HandshakeMessage;
 import net.torrent.torrent.context.TorrentPeer;
-import net.torrent.torrent.context.TorrentPeerCapabilities.TorrentPeerCapability;
 import net.torrent.torrent.context.TorrentPeerID;
 
 import org.jboss.netty.channel.Channel;
@@ -29,6 +28,8 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handles pre-algoritihm handler stuff.
@@ -38,6 +39,11 @@ import org.jboss.netty.channel.SimpleChannelHandler;
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
 public class PeerWireManagerHeadHandler extends SimpleChannelHandler {
+	/**
+	 * The logger instance
+	 */
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	
 	/**
 	 * The torrent manager
 	 */
@@ -88,14 +94,16 @@ public class PeerWireManagerHeadHandler extends SimpleChannelHandler {
 			peer.setSocketAddress((InetSocketAddress) channel
 					.getRemoteAddress());
 			peer.getCapabilities().setCapabilities(handshake.getReserved());
+			
+			log.debug("Handshaked with peer {}", pwpeer);
 
 			// TODO send bitfield
-			if (peer.getCapabilities().supports(
-					TorrentPeerCapability.FAST_PEERS)) {
-				pwpeer.haveAll();
-			} else {
-				// pwpeer.bitfield(manager.getContext().getBitfield().getBits());
-			}
+			// if (peer.getCapabilities().supports(
+			// TorrentPeerCapability.FAST_PEERS)) {
+			// //pwpeer.haveAll();
+			// } else {
+			pwpeer.bitfield(manager.getContext().getBitfield().getBits());
+			// }
 		}
 		super.messageReceived(ctx, e);
 	}

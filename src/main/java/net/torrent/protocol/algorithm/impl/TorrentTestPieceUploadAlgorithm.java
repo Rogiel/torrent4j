@@ -16,7 +16,6 @@
 package net.torrent.protocol.algorithm.impl;
 
 import net.torrent.protocol.algorithm.TorrentPieceUploadAlgorithm;
-import net.torrent.protocol.algorithm.impl.TorrentStdAlgorithm.TorrentStdAlgorithmContext;
 import net.torrent.protocol.peerwire.manager.TorrentManager;
 import net.torrent.torrent.TorrentPart;
 import net.torrent.torrent.context.TorrentPeer;
@@ -26,19 +25,13 @@ import net.torrent.torrent.context.TorrentPeer;
  * 
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
-public class TorrentStdPieceUploadAlgorithm implements
+public class TorrentTestPieceUploadAlgorithm implements
 		TorrentPieceUploadAlgorithm {
 	@SuppressWarnings("unused")
 	private final TorrentManager manager;
-	/**
-	 * The algorithm context
-	 */
-	private final TorrentStdAlgorithmContext context;
 
-	public TorrentStdPieceUploadAlgorithm(TorrentManager manager,
-			TorrentStdAlgorithmContext context) {
+	public TorrentTestPieceUploadAlgorithm(TorrentManager manager) {
 		this.manager = manager;
-		this.context = context;
 	}
 
 	@Override

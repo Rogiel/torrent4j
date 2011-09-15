@@ -22,18 +22,17 @@ import net.torrent.util.bencoding.BMap;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.http.HttpChunk;
+import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
 import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 
 public class TorrentTrackerBDecoder extends OneToOneDecoder {
 	@Override
 	protected Object decode(ChannelHandlerContext ctx, Channel channel,
 			Object msg) throws Exception {
-		if (!(msg instanceof HttpChunk))
+		if (!(msg instanceof DefaultHttpResponse))
 			return msg;
-		final HttpChunk message = (HttpChunk) msg;
+		final DefaultHttpResponse message = (DefaultHttpResponse) msg;
 
-		System.out.println(new String(message.getContent().array()));
 		if (message.getContent().readableBytes() <= 0)
 			return null;
 

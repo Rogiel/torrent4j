@@ -44,6 +44,8 @@ import net.torrent.torrent.context.TorrentPeerCapabilities.TorrentPeerCapability
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An PeerWire Peer manages the {@link Channel channel} (the current peer
@@ -54,6 +56,11 @@ import org.jboss.netty.channel.ChannelFutureListener;
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
 public class PeerWirePeer {
+	/**
+	 * The logger instance
+	 */
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+
 	/**
 	 * The active {@link Channel}
 	 */
@@ -109,11 +116,14 @@ public class PeerWirePeer {
 	public void choke() {
 		if (peer.getChokingState() == ChokingState.CHOKED)
 			return;
+		log.debug("Chocking peer {}", this);
+
 		write(new ChokeMessage()).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future)
 					throws Exception {
 				if (future.isSuccess()) {
+					log.debug("Chocked peer {}", this);
 					peer.setChokingState(ChokingState.CHOKED);
 				}
 			}
@@ -126,11 +136,14 @@ public class PeerWirePeer {
 	public void unchoke() {
 		if (peer.getChokingState() == ChokingState.UNCHOKED)
 			return;
+		log.debug("Unchocking peer {}", this);
+
 		write(new UnchokeMessage()).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future)
 					throws Exception {
 				if (future.isSuccess()) {
+					log.debug("Unchocked peer {}", this);
 					peer.setChokingState(ChokingState.UNCHOKED);
 				}
 			}
@@ -143,11 +156,14 @@ public class PeerWirePeer {
 	public void interested() {
 		if (peer.getInterestState() == InterestState.INTERESTED)
 			return;
+		log.debug("Informing interest in peer {}", this);
+
 		write(new InterestedMessage()).addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future)
 					throws Exception {
 				if (future.isSuccess()) {
+					log.debug("Interest informed to peer {}", this);
 					peer.setInterestState(InterestState.INTERESTED);
 				}
 			}
@@ -160,12 +176,15 @@ public class PeerWirePeer {
 	public void uninterested() {
 		if (peer.getInterestState() == InterestState.UNINTERESTED)
 			return;
+		log.debug("Informing no interest to peer {}", this);
+
 		write(new NotInterestedMessage()).addListener(
 				new ChannelFutureListener() {
 					@Override
 					public void operationComplete(ChannelFuture future)
 							throws Exception {
 						if (future.isSuccess()) {
+							log.debug("No interest informed to peer {}", this);
 							peer.setInterestState(InterestState.UNINTERESTED);
 						}
 					}
@@ -184,6 +203,8 @@ public class PeerWirePeer {
 	 * @return the {@link ChannelFuture} for this message
 	 */
 	public ChannelFuture request(int index, int start, int length) {
+		log.debug("Requesting piece {} part {} with {} length to peer {}",
+				new Object[] { index, start, length, peer });
 		return write(new RequestMessage(index, start, length));
 	}
 
@@ -201,6 +222,8 @@ public class PeerWirePeer {
 	 */
 	public void upload(int index, int start, int length, ByteBuffer data) {
 		this.unchoke();
+		log.debug("Sending piece {} part {} with {} length to {}, buffer: {}",
+				new Object[] { index, start, length, this, data });
 		write(new PieceMessage(index, start, length, data));
 	}
 
@@ -211,6 +234,7 @@ public class PeerWirePeer {
 	 *            the piece index
 	 */
 	public void have(int index) {
+		log.debug("Notifying have piece {} to peer {}", index, this);
 		write(new HaveMessage(index));
 	}
 
@@ -225,6 +249,9 @@ public class PeerWirePeer {
 	 *            the length
 	 */
 	public void cancel(int index, int start, int length) {
+		log.debug(
+				"Cancelling piece {} reuquest, part {} with {} length from peer {}",
+				new Object[] { index, start, length, this });
 		write(new CancelMessage(index, start, length));
 	}
 
@@ -232,6 +259,7 @@ public class PeerWirePeer {
 	 * Send an keep alive message
 	 */
 	public void keepAlive() {
+		log.debug("Keeping alive peer {}", this);
 		write(new KeepAliveMessage());
 	}
 
@@ -246,6 +274,7 @@ public class PeerWirePeer {
 	 *            the port number
 	 */
 	public void port(short port) {
+		log.debug("Sending DHT port {} to peer {}", port, this);
 		write(new PortMessage(port));
 	}
 
@@ -256,6 +285,7 @@ public class PeerWirePeer {
 	 * Send an have none message.
 	 */
 	public void haveNone() {
+		log.debug("Sendind NO-PIECES message to peer {}", this);
 		write(new HaveNoneMessage());
 	}
 
@@ -266,6 +296,7 @@ public class PeerWirePeer {
 	 * Send an have all message.
 	 */
 	public void haveAll() {
+		log.debug("Sending HAVE-ALL message to peer {}", this);
 		write(new HaveAllMessage());
 	}
 
@@ -284,6 +315,9 @@ public class PeerWirePeer {
 	 */
 	public void reject(int index, int start, int length) {
 		this.choke();
+		log.debug(
+				"Rejecting part {}, starting at {} with {] length from peer {}",
+				new Object[] { index, start, length, this });
 		write(new RejectMessage(index, start, length));
 	}
 
@@ -297,6 +331,7 @@ public class PeerWirePeer {
 	 *            the piece index
 	 */
 	public void suggest(int index) {
+		log.debug("Suggesting piece {} to peer {}", index, this);
 		write(new SuggestPieceMessage(index));
 	}
 
@@ -311,6 +346,7 @@ public class PeerWirePeer {
 	 *            the piece indexes
 	 */
 	public void allowedFast(int... indexes) {
+		log.debug("Allowing {} fast pieces to peer {}", indexes.length, this);
 		write(new AllowedFastMessage(indexes));
 	}
 
@@ -353,6 +389,16 @@ public class PeerWirePeer {
 	 */
 	public Channel getChannel() {
 		return channel;
+	}
+
+	/**
+	 * @return
+	 * @see org.jboss.netty.channel.Channel#isOpen()
+	 */
+	public boolean isConnected() {
+		if (channel == null)
+			return false;
+		return channel.isOpen();
 	}
 
 	/**

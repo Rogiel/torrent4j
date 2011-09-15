@@ -16,36 +16,23 @@
 package net.torrent.protocol.algorithm.impl;
 
 import net.torrent.protocol.algorithm.TorrentInterestAlgorithm;
-import net.torrent.protocol.algorithm.impl.TorrentStdAlgorithm.TorrentStdAlgorithmContext;
 import net.torrent.protocol.peerwire.manager.TorrentManager;
 import net.torrent.torrent.context.TorrentPeer;
 import net.torrent.torrent.context.TorrentPeer.ChokingState;
 import net.torrent.torrent.context.TorrentPeer.InterestState;
 import net.torrent.torrent.piece.PieceSelector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Standard torrent interest algorithm
  * 
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
-public class TorrentStdInterestAlgorithm implements TorrentInterestAlgorithm {
-	/**
-	 * The logger instance
-	 */
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	
+public class TorrentTestInterestAlgorithm implements TorrentInterestAlgorithm {
 	/**
 	 * The torrent manager
 	 */
 	@SuppressWarnings("unused")
 	private final TorrentManager manager;
-	/**
-	 * The algorithm context
-	 */
-	private final TorrentStdAlgorithmContext context;
 
 	/**
 	 * This selector is used to find the next piece to be downloaded. Parts are
@@ -61,33 +48,22 @@ public class TorrentStdInterestAlgorithm implements TorrentInterestAlgorithm {
 	 * @param selector
 	 *            the piece selector
 	 */
-	public TorrentStdInterestAlgorithm(TorrentManager manager,
-			TorrentStdAlgorithmContext context, PieceSelector selector) {
+	public TorrentTestInterestAlgorithm(TorrentManager manager,
+			PieceSelector selector) {
 		this.manager = manager;
-		this.context = context;
 		this.selector = selector;
 	}
 
 	@Override
 	public InterestState interested(TorrentPeer peer) {
-		log.debug("Checking interest in peer {}", peer);
-		if (context.downloadingPieces >= 10) {
-			log.debug("Already downloading 10 or more pieces, no interest in {}", peer);
-			return InterestState.UNINTERESTED;
-		}
-
 		int pieces = selector.countPieces(peer);
-		if (pieces >= 5) {
-			log.debug("Peer {} has {} interesting pieces", peer, pieces);
+		if (pieces >= 5)
 			return InterestState.INTERESTED;
-		}
-		log.debug("Peer {} does not have 5 or more pieces we dont have", peer);
 		return InterestState.INTERESTED;
 	}
 
 	@Override
 	public ChokingState choke(TorrentPeer peer) {
-		log.debug("Never choke peer {}", peer);
 		return ChokingState.UNCHOKED;
 	}
 }

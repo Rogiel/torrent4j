@@ -55,6 +55,8 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.handler.timeout.IdleStateAwareChannelHandler;
 import org.jboss.netty.handler.timeout.IdleStateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Standard handler responsible for forwarding calls to {@link TorrentAlgorithm}
@@ -69,6 +71,11 @@ import org.jboss.netty.handler.timeout.IdleStateEvent;
  */
 // TODO separate extensions handler from algorithm handler
 public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
+	/**
+	 * The logger instance
+	 */
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	
 	/**
 	 * The torrent manager
 	 */
@@ -223,9 +230,11 @@ public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 	private void testInterest(PeerWirePeer peer) {
 		switch (interestAlgorithm.interested(peer.getTorrentPeer())) {
 		case INTERESTED:
+			log.debug("Algorithm is interested in peer {}", peer);
 			peer.interested();
 			return;
 		case UNINTERESTED:
+			log.debug("Algorithm is not interested in peer {}", peer);
 			peer.uninterested();
 			return;
 		}
@@ -240,9 +249,11 @@ public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 	private void testChoke(PeerWirePeer peer) {
 		switch (interestAlgorithm.choke(peer.getTorrentPeer())) {
 		case CHOKED:
+			log.debug("Algorithm wants to choke peer {}", peer);
 			peer.choke();
 			return;
 		case UNCHOKED:
+			log.debug("Algorithm wants to unchoke peer {}", peer);
 			peer.unchoke();
 			return;
 		}
@@ -257,12 +268,14 @@ public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 	 *            the new interest state
 	 */
 	private void peerIntrestUpdate(PeerWirePeer peer, InterestState state) {
+		log.debug("Peer {} has updated interest state to {}", peer, state);
 		switch (peerAlgorithm.interested(peer.getTorrentPeer(), state)) {
 		case CHOKED:
+			log.debug("Algorithm wants to choke peer {}", peer);
 			peer.choke();
 			return;
-
 		case UNCHOKED:
+			log.debug("Algorithm wants to unchoke peer {}", peer);
 			peer.unchoke();
 			return;
 		}
@@ -277,17 +290,22 @@ public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 	 *            the choke state
 	 */
 	private void peerChokeUpdate(PeerWirePeer peer, ChokingState state) {
+		log.debug("Peer {} has updated choke state to {}", peer, state);
 		switch (peerAlgorithm.choked(peer.getTorrentPeer(), state)) {
 		case DISCONNECT:
+			log.debug("Algorithm wants to diconnect peer {}", peer);
 			peer.disconnect();
 			break;
 
 		case CONNECT_NEW_PEER:
+			log.debug("Algorithm wants to diconnect peer {}", peer);
 			peer.disconnect();
+			log.debug("Algorithm wants connect to a new peer");
 			connect(peerAlgorithm.connect());
 			return;
 
 		case DOWNLOAD:
+			log.debug("Algorithm wants to download a piece from peer {}", peer);
 			download(peer,
 					downloadAlgorithm.getNextPart(peer.getTorrentPeer(), null));
 			return;
@@ -305,25 +323,34 @@ public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 	 */
 	private void processRequest(PeerWirePeer peer, TorrentPart part)
 			throws IOException {
+		log.debug("Peer {} has requested {}", peer, part);
 		switch (uploadAlgorithm.request(peer.getTorrentPeer(), part)) {
 		case DISCONNECT:
+			log.debug("Algorithm wants to diconnect peer {}", peer);
 			peer.disconnect();
 			break;
 		case REJECT:
+			log.debug("Algorithm wants to reject part {} from peer {}", part, peer);
 			if (!peer.getTorrentPeer().getCapabilities()
-					.supports(TorrentPeerCapability.FAST_PEERS))
+					.supports(TorrentPeerCapability.FAST_PEERS)) {
+				log.debug("Peer {} do not support rejecting part {}, ignoring request", peer, part);
 				return;
+			}
 			peer.reject(part.getPiece().getIndex(), part.getStart(),
 					part.getLength());
 			break;
 		case CONNECT_NEW_PEER:
+			log.debug("Algorithm wants to diconnect peer {}", peer);
 			peer.disconnect();
+			log.debug("Algorithm wants connect to a new peer");
 			connect(peerAlgorithm.connect());
 			break;
 		case CHOKE:
+			log.debug("Algorithm wants to choke peer {}", peer);
 			peer.choke();
 			break;
 		case UPLOAD:
+			log.debug("Algorithm wants to upload part {} to peer {}", part, peer);
 			upload(peer, part);
 			break;
 		}
@@ -342,8 +369,11 @@ public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 	 */
 	private void processDownload(final PeerWirePeer peer,
 			final TorrentPart part, ByteBuffer data) throws IOException {
+		log.debug("Received part {} from peer {}", part, peer);
+		
 		final TorrentPart nextPart = downloadAlgorithm.getNextPart(
 				peer.getTorrentPeer(), part);
+		log.debug("Next part from peer {} is {}", peer, nextPart);
 		boolean complete = downloadAlgorithm.isComplete(peer.getTorrentPeer(),
 				part.getPiece());
 		final ChannelFuture future = download(peer, nextPart);
@@ -353,36 +383,47 @@ public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 			return;
 		if (!complete)
 			return;
+		log.debug("Piece {} is complete, calculating check sum", part.getPiece());
 
 		if (datastore.checksum(part.getPiece())) {
 			manager.getContext().getBitfield().setPiece(part.getPiece(), true);
 			manager.getPeerManager().executeActive(new PeerWirePeerCallback() {
 				@Override
 				public void callback(PeerWirePeer peer) {
+					log.debug("Broadcasting HAVE {} message to all peers", part.getPiece());
 					peer.have(part.getPiece().getIndex());
 				}
 			});
 		} else {
-			System.exit(0);
+			log.debug("Checksum for piece {} is not valid", part.getPiece());
 			manager.getContext().getBitfield().setPiece(part.getPiece(), false);
 			switch (downloadAlgorithm.corrupted(peer.getTorrentPeer(),
 					part.getPiece())) {
 			case CHOKE:
-				if (future != null && !future.cancel())
+				log.debug("Algorithm wants to choke peer {}", peer);
+				if (future != null && !future.cancel()) {
+					log.debug("Canceling part {} request from peer {}", nextPart, peer);
 					peer.cancel(nextPart.getPiece().getIndex(),
 							nextPart.getStart(), nextPart.getLength());
+				}
 				peer.choke();
 				break;
 			case DISCONNECT:
+				log.debug("Algorithm wants to diconnect peer {}", peer);
 				peer.disconnect();
 				break;
+
 			case CONNECT_NEW_PEER:
+				log.debug("Algorithm wants to diconnect peer {}", peer);
 				peer.disconnect();
+				log.debug("Algorithm wants connect to a new peer");
 				connect(peerAlgorithm.connect());
-				break;
+				return;
 			case CONTINUE:
+				log.debug("Algorithm wants to continue downloads from peer {}", peer);
 				break;
 			case CANCEL:
+				log.debug("Algorithms wants to cancel part {} request from peer {}", nextPart, peer);
 				if (future != null && !future.cancel())
 					peer.cancel(nextPart.getPiece().getIndex(),
 							nextPart.getStart(), nextPart.getLength());
@@ -398,15 +439,21 @@ public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 	 *            the peer
 	 */
 	private void keepAlive(PeerWirePeer peer) {
+		log.debug("Peer {} is keeping alive", peer);
 		switch (peerAlgorithm.keepAlive(peer.getTorrentPeer())) {
 		case DISCONNECT:
+			log.debug("Algorithm wants to diconnect peer {}", peer);
 			peer.disconnect();
 			break;
+
 		case CONNECT_NEW_PEER:
+			log.debug("Algorithm wants to diconnect peer {}", peer);
 			peer.disconnect();
+			log.debug("Algorithm wants connect to a new peer");
 			connect(peerAlgorithm.connect());
-			break;
+			return;
 		case KEEP_ALIVE:
+			log.debug("Algorithm wants to keep alive peer {}", peer);
 			peer.keepAlive();
 			break;
 		}
@@ -493,23 +540,31 @@ public class PeerWireAlgorithmHandler extends IdleStateAwareChannelHandler {
 	}
 
 	private void rejected(PeerWirePeer peer, TorrentPart part) {
+		log.debug("Peer {} rejected part request {}", peer, part);
 		switch (downloadAlgorithm.rejected(peer.getTorrentPeer(), part)) {
 		case DISCONNECT:
+			log.debug("Algorithm wants to diconnect peer {}", peer);
 			peer.disconnect();
 			break;
+
 		case CONNECT_NEW_PEER:
+			log.debug("Algorithm wants to diconnect peer {}", peer);
 			peer.disconnect();
+			log.debug("Algorithm wants connect to a new peer");
 			connect(peerAlgorithm.connect());
-			break;
+			return;
 		case NOT_INTERESTED:
+			log.debug("Algorithm has no interest in peer {}", peer);
 			peer.uninterested();
 			break;
 		case RETRY:
+			log.debug("Algorithm wants to retry request for part {} from peer {}", part, peer);
 			download(peer, part);
 			break;
 		case TRY_ANOTHER_PIECE:
 			final TorrentPart nextPart = downloadAlgorithm.getNextPart(
 					peer.getTorrentPeer(), part);
+			log.debug("Algorithm wants to try another part request {} from peer {}", nextPart, peer);
 			download(peer, nextPart);
 			break;
 		}

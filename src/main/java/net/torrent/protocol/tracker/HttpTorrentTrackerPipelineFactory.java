@@ -16,38 +16,49 @@
 package net.torrent.protocol.tracker;
 
 import static org.jboss.netty.channel.Channels.pipeline;
-import net.torrent.protocol.tracker.codec.ISO8859HttpRequestEncoder;
 import net.torrent.protocol.tracker.codec.TorrentTrackerBDecoder;
 import net.torrent.protocol.tracker.codec.TorrentTrackerDecoder;
 import net.torrent.protocol.tracker.codec.TorrentTrackerEncoder;
+import net.torrent.torrent.context.TorrentSwarm;
 
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.handler.codec.http.HttpRequestEncoder;
 import org.jboss.netty.handler.codec.http.HttpResponseDecoder;
 import org.jboss.netty.handler.logging.LoggingHandler;
 import org.jboss.netty.logging.InternalLogLevel;
 
 public class HttpTorrentTrackerPipelineFactory implements
 		ChannelPipelineFactory {
+	private final TorrentSwarm swarm;
+
+	/**
+	 * @param torrent
+	 */
+	public HttpTorrentTrackerPipelineFactory(TorrentSwarm swarm) {
+		this.swarm = swarm;
+	}
+
 	@Override
 	public ChannelPipeline getPipeline() throws Exception {
 		final ChannelPipeline pipeline = pipeline();
 
 		// log binary data input and object output
-		// pipeline.addFirst("logging", new LoggingHandler());
+		pipeline.addFirst("logging-start", new LoggingHandler(
+				InternalLogLevel.INFO));
 
 		pipeline.addLast("tracker.encoder", new TorrentTrackerEncoder());
-		pipeline.addLast("encoder", new ISO8859HttpRequestEncoder());
+		pipeline.addLast("http.encoder", new HttpRequestEncoder());
 
 		pipeline.addLast("interceptor", new Interceptor());
 
-		pipeline.addLast("decoder", new HttpResponseDecoder());
+		pipeline.addLast("http.decoder", new HttpResponseDecoder());
 		pipeline.addLast("bdecoder", new TorrentTrackerBDecoder());
 		pipeline.addLast("tracker.decoder", new TorrentTrackerDecoder());
 
-		pipeline.addLast("handler", new TrackerHandler());
+		pipeline.addLast("handler", new TrackerHandler(swarm));
 
-		pipeline.addLast("logging", new LoggingHandler(InternalLogLevel.WARN));
+		pipeline.addLast("logging", new LoggingHandler(InternalLogLevel.INFO));
 
 		return pipeline;
 	}

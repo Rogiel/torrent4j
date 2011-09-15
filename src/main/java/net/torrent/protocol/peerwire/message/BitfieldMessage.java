@@ -65,19 +65,15 @@ public class BitfieldMessage implements PeerWireWritableMessage,
 
 	@Override
 	public void read(ChannelBuffer buffer) throws IOException {
-		buffer.readerIndex(buffer.readerIndex() - 5);
-		int len = buffer.readInt() - 2;
 		buffer.readByte(); // unk
 
-		bitfield = new BitSet(len * 8);
+		bitfield = new BitSet(8);
 		int i = 0;
-		int read = 0;
-		while (read <= len) {
+		while (buffer.readable()) {
 			byte b = buffer.readByte();
 			for (int j = 128; j > 0; j >>= 1) {
 				bitfield.set(i++, (b & j) != 0);
 			}
-			read++;
 		}
 	}
 

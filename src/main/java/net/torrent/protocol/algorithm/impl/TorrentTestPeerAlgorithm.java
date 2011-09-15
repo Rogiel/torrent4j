@@ -16,7 +16,6 @@
 package net.torrent.protocol.algorithm.impl;
 
 import net.torrent.protocol.algorithm.TorrentPeerAlgorithm;
-import net.torrent.protocol.algorithm.impl.TorrentStdAlgorithm.TorrentStdAlgorithmContext;
 import net.torrent.protocol.peerwire.manager.TorrentManager;
 import net.torrent.torrent.context.TorrentPeer;
 import net.torrent.torrent.context.TorrentPeer.ChokingState;
@@ -27,24 +26,17 @@ import net.torrent.torrent.context.TorrentPeer.InterestState;
  * 
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
-public class TorrentStdPeerAlgorithm implements TorrentPeerAlgorithm {
+public class TorrentTestPeerAlgorithm implements TorrentPeerAlgorithm {
+	@SuppressWarnings("unused")
 	private final TorrentManager manager;
-	/**
-	 * The algorithm context
-	 */
-	private final TorrentStdAlgorithmContext context;
 
-	public TorrentStdPeerAlgorithm(TorrentManager manager,
-			TorrentStdAlgorithmContext context) {
+	public TorrentTestPeerAlgorithm(TorrentManager manager) {
 		this.manager = manager;
-		this.context = context;
 	}
 
 	@Override
 	public TorrentPeer connect() {
-		if (context.activeConnections >= 30)
-			return null;
-		return manager.getContext().getSwarm().getRandomPeer();
+		return null;
 	}
 
 	@Override

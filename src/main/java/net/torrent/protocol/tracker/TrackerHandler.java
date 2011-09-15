@@ -15,15 +15,43 @@
  */
 package net.torrent.protocol.tracker;
 
+import java.net.Inet4Address;
+import java.net.InetSocketAddress;
+
+import net.torrent.protocol.tracker.message.PeerListMessage;
+import net.torrent.protocol.tracker.message.PeerListMessage.PeerInfo;
+import net.torrent.torrent.context.TorrentPeer;
+import net.torrent.torrent.context.TorrentPeerID;
+import net.torrent.torrent.context.TorrentSwarm;
+
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.SimpleChannelHandler;
 
-public class TrackerHandler extends SimpleChannelUpstreamHandler {
+public class TrackerHandler extends SimpleChannelHandler {
+	private final TorrentSwarm swarm;
+
+	/**
+	 * @param torrent
+	 */
+	public TrackerHandler(TorrentSwarm swarm) {
+		this.swarm = swarm;
+	}
+
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 			throws Exception {
-		System.out.println(e.getMessage());
+		if (e.getMessage() instanceof PeerListMessage) {
+			final PeerListMessage message = (PeerListMessage) e.getMessage();
+
+			for (final PeerInfo peerInfo : message.getPeerList()) {
+				final TorrentPeer peer = new TorrentPeer(swarm.getContext(),
+						TorrentPeerID.create(peerInfo.getPeerId()),
+						new InetSocketAddress(Inet4Address.getByName(peerInfo
+								.getIp()), peerInfo.getPort()));
+				swarm.add(peer);
+			}
+		}
 		super.messageReceived(ctx, e);
 	}
 }

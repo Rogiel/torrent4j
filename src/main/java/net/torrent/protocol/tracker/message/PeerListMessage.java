@@ -159,7 +159,7 @@ public class PeerListMessage implements TorrentTrackerResponseMessage {
 
 		public static PeerInfo fromBMap(BMap map) throws BTypeException {
 			return new PeerInfo((byte[]) map.get("peer id"),
-					map.getString("peer ip"), map.getInteger("port"));
+					map.getString("ip"), map.getInteger("port"));
 		}
 
 		public static PeerInfo fromRawIP(byte[] list, int i, int j) {

@@ -28,26 +28,19 @@ import net.torrent.torrent.piece.PieceSelector;
  * 
  * @author <a href="http://www.rogiel.com/">Rogiel Josias Sulzbach</a>
  */
-public class TorrentStdAlgorithm implements TorrentAlgorithm {
+public class TorrentTestAlgorithm implements TorrentAlgorithm {
 	private final TorrentPeerAlgorithm peerAlgorithm;
 	private final TorrentInterestAlgorithm interestAlgorithm;
 	private final TorrentPieceDownloadAlgorithm downloadAlgorithm;
 	private final TorrentPieceUploadAlgorithm uploadAlgorithm;
 
-	public TorrentStdAlgorithm(final TorrentManager manager,
+	public TorrentTestAlgorithm(final TorrentManager manager,
 			final PieceSelector selector) {
-		final TorrentStdAlgorithmContext ctx = new TorrentStdAlgorithmContext();
-		
-		peerAlgorithm = new TorrentStdPeerAlgorithm(manager, ctx);
-		interestAlgorithm = new TorrentStdInterestAlgorithm(manager, ctx, selector);
-		downloadAlgorithm = new TorrentStdPieceDownloadAlgorithm(manager, ctx,
+		peerAlgorithm = new TorrentTestPeerAlgorithm(manager);
+		interestAlgorithm = new TorrentTestInterestAlgorithm(manager, selector);
+		downloadAlgorithm = new TorrentTestPieceDownloadAlgorithm(manager,
 				selector);
-		uploadAlgorithm = new TorrentStdPieceUploadAlgorithm(manager, ctx);
-	}
-
-	protected class TorrentStdAlgorithmContext {
-		public int downloadingPieces = 0;
-		public int activeConnections = 0;
+		uploadAlgorithm = new TorrentTestPieceUploadAlgorithm(manager);
 	}
 
 	@Override
