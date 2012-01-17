@@ -104,13 +104,6 @@
 				<configuration>
 					<uniqueVersion>false</uniqueVersion>
 				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.maven.wagon</groupId>
-						<artifactId>wagon-ssh</artifactId>
-						<version>2.1</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>com.github.github</groupId>
@@ -157,6 +150,16 @@
 						</plugin>
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-project-info-reports-plugin</artifactId>
+							<version>2.4</version>
+							<configuration>
+								<developerConnection>scm:git@github.com:torrent4j/torrent4j.git</developerConnection>
+								<anonymousConnection>scm:git://github.com/torrent4j/torrent4j.git</anonymousConnection>
+								<webAccessUrl>https://github.com/torrent4j/torrent4j/tree/master/</webAccessUrl>
+							</configuration>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-changelog-plugin</artifactId>
 							<version>2.2</version>
 							<configuration>
@@ -174,13 +177,6 @@
 						</plugin>
 					</reportPlugins>
 				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.maven.wagon</groupId>
-						<artifactId>wagon-ssh</artifactId>
-						<version>2.1</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>com.github.github</groupId>
@@ -200,14 +196,55 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>com.github.github</groupId>
+				<artifactId>downloads-maven-plugin</artifactId>
+				<version>0.4</version>
+				<configuration>
+					<repositoryOwner>torrent4j</repositoryOwner>
+					<repositoryName>torrent4j</repositoryName>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>deploy</phase>
+						<goals>
+							<goal>upload</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
-	
-<!-- 	<profiles> -->
-<!-- 		<profile> -->
-<!-- 			<id>github</id> -->
-<!-- 		</profile> -->
-<!-- 	</profiles> -->
+
+	<profiles>
+		<profile>
+			<id>release-sign-artifacts</id>
+			<activation>
+				<property>
+					<name>performRelease</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.4</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<dependencies>
 		<dependency>
