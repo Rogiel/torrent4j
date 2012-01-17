@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+	<properties>
+		<title>Home</title>
+		<author email="rogiel@rogiel.com">Rogiel Sulzbach</author>
+	</properties>
+
+	<body>
+		<!-- The body of the document contains a number of sections -->
+		<section name="What is this project?">
+			<p>Torrent4J is a java library that provides easy downloading and
+				uploading of torrent files. It is possible to customize the storage
+				engine and the download algorithm.
+			</p>
+		</section>
+
+		<section name="Code Snippet">
+			<p>To get started, all you need to do is include the library as
+				dependency to your Maven project:
+			</p>
+			<source><![CDATA[<dependency>
+	<groupId>com.rogiel.torrent4j</groupId>
+	<artifactId>torrent4j</artifactId>
+	<version>library-version-here</version>
+</dependency>]]></source>
+			<small>You can find the latest version of the library at the top of
+				this page!
+			</small>
+
+			<p>Now that your dependency is included, you need to start the
+				torrent transfer:
+			</p>
+
+			<source><![CDATA[final TorrentController controller = new TorrentController();
+controller.start(4578);
+final Torrent torrent = Torrent.load(new URL(("http://releases.ubuntu.com/11.10/ubuntu-11.10-desktop-amd64.iso.torrent"));
+controller.registerTorrent(torrent);]]></source>
+
+			<p>Seriously, that's it!</p>
+		</section>
+
+		<section name="Explaining the code snippet">
+			<p>You're right, that does not explain much, so here is a detailed
+				explanation and some more advaced topics too!
+			</p>
+
+			<subsection name="The TorrentController class">
+				<p>The torrent controller is responsible for, as the name suggests,
+					controlling all torrent transfers. There can be several torrent
+					controllers serving several other torrents. They need, however, to
+					listen for peers at different ports.
+				</p>
+			</subsection>
+
+			<subsection name="Creating a new TorrentController object">
+				<p>
+					While creating a new
+					TorrentController you can
+					choose which
+					<b>TorrentProtocol</b>
+					and which
+					<b>TorrentStorage</b>
+					you desire
+					to use. At
+					the moment, there is only a
+					single
+					<b>TorrentProtocol</b>
+					but
+					several
+					<b>TorrentStorage</b>
+					implementations.
+				</p>
+				<p>
+					This guide will follow customization at a general point of view.
+					For more detailed information, the sources should be
+					consulted.
+				</p>
+				<p>
+					You can easily and rapidly create a new
+					<b>TorrentController</b>
+					using the
+					default
+					no-arg
+					constructor, which will automatically use
+					<b>PeerWireTorrentProtocol</b>
+					and
+					<b>NIOTorrentStorage</b>
+					as default
+					protocol
+					and storage. The
+					<b>NIOTorrentStorage</b>
+					stores the torrent
+					files
+					directly
+					into the working
+					directory.
+				</p>
+				<source><![CDATA[final TorrentController controller = new TorrentController();]]></source>
+				<p>If any of the default behavior
+					is not intented,
+					you can use other
+					constructors to customize it's
+					behavior, see as
+					follow:
+				</p>
+				<source><![CDATA[final TorrentController controller = new TorrentController(new InMemoryTorrentStorage());]]></source>
+				<p>
+					In this snippet, a new controller with
+					default
+					<b>TorrentProtocol</b>
+					and
+					<b>InMemoryTorrentStorage</b>
+					is created
+				</p>
+				<p>You can also create a controller customizing only the protocol or
+					the storage:
+				</p>
+
+				<source><![CDATA[final TorrentController controller1 = new TorrentController(new MyOwnTorrentProtocol());]]></source>
+			</subsection>
+
+			<subsection name="Starting the controller">
+				<p>
+					Now that the
+					controller is instantiated, it
+					must be started in order
+					to
+					begin
+					download and serving other peer's
+					requests. Starting a
+					controller is
+					done using the
+					<b>TorrentController.start(int)</b>
+					method.
+					The single
+					argument in the
+					method defines the port in which
+					the
+					controller should
+					listen for
+					incoming connections. Example:
+				</p>
+
+				<source><![CDATA[controller.start(4578);]]></source>
+				<p>
+					<small>
+						This snippet starts the controller and listen for incoming
+						connections at
+						port
+						<b>4578</b>
+						.
+					</small>
+				</p>
+			</subsection>
+
+			<subsection name="Loading the .torrent file">
+				<p>
+					Once started the
+					<b>TorrentController</b>
+					, it's
+					time to load the
+					<b>.torrent</b>
+					meta
+					data file
+					into memory. Doing so, is
+					really easy with the static
+					<b>Torrent.load()</b>
+					methods. Those methods,
+					provide an utility to parse
+					and process
+					torrent files and appends an
+					default strategy to the
+					transfer. See
+					below how to load an torrent
+					from an remote URL:
+				</p>
+				<source><![CDATA[final Torrent torrent = Torrent.load(new URL("http://releases.ubuntu.com/11.10/ubuntu-11.10-desktop-amd64.iso.torrent"));]]></source>
+				<p>
+					<small>
+						This snipped will load the torrent from an URL and parse it
+						into an
+						<b>Torrent</b>
+						object
+					</small>
+				</p>
+				<source><![CDATA[final Torrent torrent = Torrent.load(Path.get("anyTorrentFile.torrent"));]]></source>
+				<p>
+					<small>This snippet will load the torrent from an NIO.2 Path
+					</small>
+				</p>
+			</subsection>
+
+			<subsection name="Registering the torrent to the controller">
+				<p>
+					A single TorrentController can handle as many torrents as
+					the
+					hardware
+					can support. To do so, you need to attach the torrent to
+					the
+					controller. A single torrent can only be attached to a single
+					controller at a time (you can always load
+					<b>another</b>
+					instance of
+					<b>Torrent</b>
+					with the same file and start it with another controller!).
+					The
+					snippet below, registers the torrent into the controller, from
+					that
+					point onwards, the transfer is stared and everything is
+					managed
+					by
+					the library.
+					<b>TorrentStrategy</b>
+					implementations can customize the
+					transfer behavior as you desire,
+					if you want to implement your own
+					strategy, you need to inform the
+					desired strategy at torrent
+					loading
+					time.
+				</p>
+
+				<source><![CDATA[controller.registerTorrent(torrent);]]></source>
+			</subsection>
+		</section>
+
+		<section name="Even more information">
+			<p>
+				Even more information can be found at our
+				<a href="https://github.com/torrent4j/torrent4j/wiki/">wiki</a>
+				, hosted on
+				<a href="https://github.com" target="_blank">github</a>
+				.
+			</p>
+		</section>
+	</body>
+</document>

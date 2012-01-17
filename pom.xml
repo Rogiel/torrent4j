@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.rogiel</groupId>
+	<groupId>com.rogiel.torrent4j</groupId>
 	<artifactId>torrent4j</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>torrent4j</name>
@@ -12,26 +12,25 @@
 		<name>Rogiel</name>
 		<url>http://www.rogiel.com/</url>
 	</organization>
-	<url>http://www.rogiel.com/</url>
+	<url>http://torrent4j.github.com/</url>
 
 	<scm>
 		<developerConnection>scm:git:git@github.com:torrent4j/torrent4j.git</developerConnection>
-		<connection>scm:git:github.com:torrent4j/torrent4j.git</connection>
+		<connection>scm:git:github.com/torrent4j/torrent4j.git</connection>
+		<url>git@github.com:torrent4j/torrent4j.git</url>
 	</scm>
 	<distributionManagement>
 		<downloadUrl>https://github.com/torrent4j/torrent4j/downloads</downloadUrl>
 		<repository>
-			<id>torrent4j-repository</id>
-			<name>torrent4j-repository</name>
-			<url>scp://rogiels@rogiel.com/home/rogiels/maven.rogiel.com</url>
-			<layout>default</layout>
+			<id>sonatype-nexus-staging</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 			<uniqueVersion>false</uniqueVersion>
 		</repository>
-		<site>
-			<id>torrent4j-site</id>
-			<name>torrent4j-site</name>
-			<url>scp://rogiels@rogiel.com/home/rogiels/torrent4j.rogiel.com</url>
-		</site>
+		<snapshotRepository>
+			<id>sonatype-nexus-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<uniqueVersion>true</uniqueVersion>
+		</snapshotRepository>
 	</distributionManagement>
 
 	<issueManagement>
@@ -145,6 +144,7 @@
 				<artifactId>maven-site-plugin</artifactId>
 				<version>3.0</version>
 				<configuration>
+					<skipDeploy>true</skipDeploy>
 					<outputEncoding>UTF-8</outputEncoding>
 					<reportPlugins>
 						<plugin>
@@ -153,16 +153,6 @@
 							<version>2.8</version>
 							<configuration>
 								<encoding>UTF-8</encoding>
-							</configuration>
-						</plugin>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-project-info-reports-plugin</artifactId>
-							<version>2.4</version>
-							<configuration>
-								<developerConnection>scm:git@github.com:torrent4j/torrent4j.git</developerConnection>
-								<anonymousConnection>scm:git://github.com/torrent4j/torrent4j.git</anonymousConnection>
-								<webAccessUrl>https://github.com/torrent4j/torrent4j/tree/master/</webAccessUrl>
 							</configuration>
 						</plugin>
 						<plugin>
@@ -203,7 +193,7 @@
 				</configuration>
 				<executions>
 					<execution>
-						<phase>site</phase>
+						<phase>site-deploy</phase>
 						<goals>
 							<goal>site</goal>
 						</goals>
@@ -212,6 +202,12 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+<!-- 	<profiles> -->
+<!-- 		<profile> -->
+<!-- 			<id>github</id> -->
+<!-- 		</profile> -->
+<!-- 	</profiles> -->
 
 	<dependencies>
 		<dependency>
