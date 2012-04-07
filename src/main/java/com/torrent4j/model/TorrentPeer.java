@@ -27,7 +27,7 @@ public class TorrentPeer {
 	/**
 	 * The peer ID
 	 */
-	private String peerID;
+	private TorrentPeerID peerID;
 
 	/**
 	 * The protocol peer used to communicate with it
@@ -67,12 +67,26 @@ public class TorrentPeer {
 		return pieces;
 	}
 
-	public String getPeerID() {
+	public TorrentPeerID getPeerID() {
 		return peerID;
 	}
 
-	public void setPeerID(String peerID) {
+	public void setPeerID(TorrentPeerID peerID) {
 		this.peerID = peerID;
+	}
+	
+	public void setPeerID(String peerID) {
+		this.peerID = new TorrentPeerID(this, peerID);
+	}
+
+	/**
+	 * Tries to detect the peer's client. If unknown, {@link TorrentPeerClient#UNKNOWN} is
+	 * returned.
+	 * 
+	 * @return the peer torrent client
+	 */
+	public TorrentPeerClient getClient() {
+		return peerID.getClient();
 	}
 
 	public TorrentProtocolPeer getProtocolPeer() {

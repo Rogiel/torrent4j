@@ -42,9 +42,11 @@ public class StandardTorrentPeerStrategy implements TorrentPeerStrategy {
 			return;
 		if (peer.getState().hasDownloadRequestedBlock())
 			return;
-		if (peer.getState().isRemotellyChoked())
-			return;
-		peer.requestBlock(piece.getFirstBlock());
+		if (peer.getState().isRemotellyChoked()) {
+			peer.declareInterest();
+		} else {
+			peer.requestBlock(piece.getFirstBlock());
+		}
 	}
 
 	@Override

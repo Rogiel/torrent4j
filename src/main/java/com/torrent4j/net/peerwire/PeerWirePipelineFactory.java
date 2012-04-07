@@ -3,6 +3,8 @@ package com.torrent4j.net.peerwire;
 import static io.netty.channel.Channels.pipeline;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPipelineFactory;
+import io.netty.handler.logging.LoggingHandler;
+import io.netty.logging.InternalLogLevel;
 
 import java.util.concurrent.Executor;
 
@@ -11,8 +13,8 @@ import com.torrent4j.net.peerwire.codec.PeerWireFrameDecoder;
 import com.torrent4j.net.peerwire.codec.PeerWireFrameEncoder;
 import com.torrent4j.net.peerwire.codec.PeerWireMessageDecoder;
 import com.torrent4j.net.peerwire.codec.PeerWireMessageEncoder;
-import com.torrent4j.net.peerwire.traffic.TorrentTrafficShapingHandler;
 import com.torrent4j.net.peerwire.traffic.PeerTrafficShapingHandler;
+import com.torrent4j.net.peerwire.traffic.TorrentTrafficShapingHandler;
 
 public class PeerWirePipelineFactory implements ChannelPipelineFactory {
 	private final TorrentController controller;
@@ -37,7 +39,7 @@ public class PeerWirePipelineFactory implements ChannelPipelineFactory {
 		p.addLast("message-decoder", new PeerWireMessageDecoder());
 		p.addLast("message-encoder", new PeerWireMessageEncoder());
 
-		// p.addLast("logging", new LoggingHandler(InternalLogLevel.WARN));
+		p.addLast("logging", new LoggingHandler(InternalLogLevel.WARN));
 
 		p.addLast("handler", new PeerWireHandler(controller));
 

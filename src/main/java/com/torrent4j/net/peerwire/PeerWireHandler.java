@@ -71,14 +71,15 @@ public class PeerWireHandler extends SimpleChannelHandler {
 						message.peerID);
 				if (peer == null) {
 					peer = new TorrentPeer(torrent);
-					peer.setPeerID(message.peerID);
 					peer.setAddress((InetSocketAddress) e.getChannel()
 							.getRemoteAddress());
 				}
+				peer.setPeerID(message.peerID);
+				
 				this.peer = (PeerWireProtocolPeer) peer.getProtocolPeer();
 
-				e.getChannel().getPipeline().get(PeerTrafficShapingHandler.class)
-						.setPeer(peer);
+				e.getChannel().getPipeline()
+						.get(PeerTrafficShapingHandler.class).setPeer(peer);
 				e.getChannel().getPipeline()
 						.get(TorrentTrafficShapingHandler.class)
 						.setTorrent(torrent);
@@ -87,6 +88,11 @@ public class PeerWireHandler extends SimpleChannelHandler {
 				this.peer.getStrategy().getPeerStrategy()
 						.peerConnected(torrent, peer);
 			} else if (msg instanceof HaveMessage) {
+				peer.getTorrentPeer()
+						.getPieces()
+						.addPiece(
+								peer.getTorrent().getPiece(
+										((HaveMessage) msg).pieceIndex));
 				peer.getStrategy()
 						.getPeerStrategy()
 						.havePiece(
@@ -127,6 +133,11 @@ public class PeerWireHandler extends SimpleChannelHandler {
 						message.pieceIndex);
 				final TorrentPieceBlock block = piece.getBlock(message.begin,
 						message.length);
+				
+				if(peer.getTorrentPeer().getState().hasUploadRequestedBlock()) {
+					peer.disconnect();
+					return;
+				}
 
 				peer.getTorrentPeer().getState().setUploadRequestedBlock(block);
 				peer.getTorrentPeer().getState()
@@ -233,8 +244,19 @@ public class PeerWireHandler extends SimpleChannelHandler {
 				peer.getTorrentPeer().getState().setLastUploadedBlock(block);
 				peer.getTorrentPeer().getState()
 						.setLastUploadedBlockDate(new Date());
-				peer.getTorrentPeer().getState().setUploadRequestedBlock(null);
-				peer.getTorrentPeer().getState().setUploadRequestedDate(null);
+
+				e.getFuture().addListener(new ChannelFutureListener() {
+					@Override
+					public void operationComplete(ChannelFuture future)
+							throws Exception {
+						if (!future.isSuccess())
+							return;
+						peer.getTorrentPeer().getState()
+								.setUploadRequestedBlock(null);
+						peer.getTorrentPeer().getState()
+								.setUploadRequestedDate(null);
+					}
+				});
 			} else if (msg instanceof RequestMessage) {
 				final RequestMessage message = (RequestMessage) msg;
 
@@ -248,9 +270,18 @@ public class PeerWireHandler extends SimpleChannelHandler {
 				peer.getTorrentPeer().getState()
 						.setDownloadRequestedDate(new Date());
 			} else if (msg instanceof CancelMessage) {
-				peer.getTorrentPeer().getState()
-						.setDownloadRequestedBlock(null);
-				peer.getTorrentPeer().getState().setDownloadRequestedDate(null);
+				e.getFuture().addListener(new ChannelFutureListener() {
+					@Override
+					public void operationComplete(ChannelFuture future)
+							throws Exception {
+						if (!future.isSuccess())
+							return;
+						peer.getTorrentPeer().getState()
+								.setDownloadRequestedBlock(null);
+						peer.getTorrentPeer().getState()
+								.setDownloadRequestedDate(null);
+					}
+				});
 			}
 		} finally {
 			ctx.sendDownstream(e);

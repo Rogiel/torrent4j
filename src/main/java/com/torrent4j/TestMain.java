@@ -21,7 +21,7 @@ public class TestMain {
 				new PeerWireProtocol(), new InMemoryTorrentStorage());
 		controller.start(1234);
 		
-		final Torrent torrent = Torrent.load(Paths.get("music.torrent"));
+		final Torrent torrent = Torrent.load(Paths.get("test.torrent"));
 		System.out.println("Torrent hash is " + torrent.getHash().getString());
 
 		// controller.checkExistingData(torrent);
@@ -29,7 +29,7 @@ public class TestMain {
 		controller.registerTorrent(torrent);
 		final TorrentPeer peer = new TorrentPeer(torrent);
 		peer.setAddress(new InetSocketAddress(Inet4Address
-				.getByName("192.168.1.100"), 21958));
+				.getByName("127.0.0.1"), 34096));
 		torrent.getSwarm().addPeer(peer);
 		
 		while(true) {

@@ -94,6 +94,7 @@
 					<descriptors>
 						<descriptor>src/main/assembly/distribution-bin.xml</descriptor>
 					</descriptors>
+					<attach>false</attach>
 				</configuration>
 			</plugin>
 
@@ -130,6 +131,10 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.2.2</version>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<goals>deploy site-deploy</goals><!-- we have to force site-deploy -->
+				</configuration>
 			</plugin>
 
 			<plugin>
@@ -183,7 +188,7 @@
 				<artifactId>site-maven-plugin</artifactId>
 				<version>0.4</version>
 				<configuration>
-					<message>Creating site for ${project.version}</message>
+					<message>Creating ${project.artifactId} site for ${project.version}</message>
 					<repositoryOwner>torrent4j</repositoryOwner>
 					<repositoryName>torrent4j.github.com</repositoryName>
 				</configuration>
@@ -203,6 +208,9 @@
 				<configuration>
 					<repositoryOwner>torrent4j</repositoryOwner>
 					<repositoryName>torrent4j</repositoryName>
+					<includes>
+						<include>${project.build.directory}/${project.artifactId}-${project.version}.zip</include>
+					</includes>
 				</configuration>
 				<executions>
 					<execution>
@@ -263,6 +271,17 @@
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 			<version>20041127.091804</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>1.6.2</version>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 
