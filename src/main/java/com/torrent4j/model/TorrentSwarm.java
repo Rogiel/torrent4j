@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.torrent4j.model.peer.TorrentPeer;
+
 public class TorrentSwarm {
 	private final Torrent torrent;
 	private final List<TorrentPeer> peers = new ArrayList<>();

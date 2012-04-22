@@ -1,10 +1,10 @@
 package com.torrent4j.strategy.standard;
 
 import com.torrent4j.model.Torrent;
-import com.torrent4j.model.TorrentPeer;
 import com.torrent4j.model.TorrentPiece;
 import com.torrent4j.model.TorrentPieceBlock;
 import com.torrent4j.model.TorrentSwarm.SwarmBroadcastHandler;
+import com.torrent4j.model.peer.TorrentPeer;
 import com.torrent4j.strategy.TorrentDownloadStrategy;
 
 public class StandardTorrentDownloadStrategy implements TorrentDownloadStrategy {

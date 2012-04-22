@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.BitSet;
 
 import com.torrent4j.model.Torrent;
-import com.torrent4j.model.TorrentPeer;
+import com.torrent4j.model.peer.TorrentPeer;
 import com.torrent4j.net.TorrentProtocolPeer;
 import com.torrent4j.net.peerwire.messages.BitFieldMessage;
 import com.torrent4j.net.peerwire.messages.BlockMessage;

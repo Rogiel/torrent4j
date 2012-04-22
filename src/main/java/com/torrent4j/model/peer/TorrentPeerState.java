@@ -1,6 +1,9 @@
-package com.torrent4j.model;
+package com.torrent4j.model.peer;
 
 import java.util.Date;
+
+import com.torrent4j.model.Torrent;
+import com.torrent4j.model.TorrentPieceBlock;
 
 public class TorrentPeerState {
 	private final TorrentPeer peer;
@@ -8,16 +11,8 @@ public class TorrentPeerState {
 	private TorrentPeerInterest remoteInterest = TorrentPeerInterest.NOT_INTERESTED;
 	private TorrentPeerInterest localInterest = TorrentPeerInterest.NOT_INTERESTED;
 
-	public enum TorrentPeerInterest {
-		INTERESTED, NOT_INTERESTED;
-	}
-
 	private TorrentPeerChoking remoteChoked = TorrentPeerChoking.CHOKED;
 	private TorrentPeerChoking locallyChoked = TorrentPeerChoking.CHOKED;
-
-	public enum TorrentPeerChoking {
-		CHOKED, UNCHOKED;
-	}
 
 	private TorrentPieceBlock downloadRequestedBlock;
 	private Date downloadRequestedDate;

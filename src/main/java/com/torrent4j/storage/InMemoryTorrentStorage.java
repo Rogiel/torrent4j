@@ -9,8 +9,8 @@ import com.torrent4j.model.Torrent;
 import com.torrent4j.util.Range;
 
 /**
- * An simple {@link TorrentStorage} implementation that stores data into huge
- * in-memory direct buffers. Please note that though it provides really fast
+ * An simple {@link TorrentStorage} implementation that stores data into a huge
+ * in-memory direct buffer. Please note that though it provides really fast
  * write and reading, it should not be used in real world implementations.
  * Storing data in-memory consumes a lot of memory and may cause the JVM to be
  * terminated by some OSes.

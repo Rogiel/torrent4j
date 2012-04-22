@@ -1,4 +1,6 @@
-package com.torrent4j.model;
+package com.torrent4j.model.peer;
+
+import com.torrent4j.model.TorrentTrafficControl;
 
 public class TorrentPeerTrafficControl extends TorrentTrafficControl {
 	private final TorrentPeer peer;

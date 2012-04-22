@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.BitSet;
 
 import com.torrent4j.model.Torrent;
-import com.torrent4j.model.TorrentPeer;
+import com.torrent4j.model.peer.TorrentPeer;
 
 public interface TorrentProtocolPeer {
 	public TorrentPeer getTorrentPeer();

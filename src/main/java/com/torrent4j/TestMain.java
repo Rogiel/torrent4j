@@ -6,7 +6,7 @@ import java.net.InetSocketAddress;
 import java.nio.file.Paths;
 
 import com.torrent4j.model.Torrent;
-import com.torrent4j.model.TorrentPeer;
+import com.torrent4j.model.peer.TorrentPeer;
 import com.torrent4j.net.peerwire.PeerWireProtocol;
 import com.torrent4j.storage.InMemoryTorrentStorage;
 

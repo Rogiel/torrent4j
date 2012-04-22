@@ -1,6 +1,8 @@
-package com.torrent4j.model;
+package com.torrent4j.model.peer;
 
 import java.util.BitSet;
+
+import com.torrent4j.model.AbstractTorrentPiecesContainer;
 
 
 public class TorrentPeerPieces extends AbstractTorrentPiecesContainer {

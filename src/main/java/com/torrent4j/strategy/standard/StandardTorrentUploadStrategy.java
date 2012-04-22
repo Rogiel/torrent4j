@@ -3,8 +3,8 @@ package com.torrent4j.strategy.standard;
 import java.io.IOException;
 
 import com.torrent4j.model.Torrent;
-import com.torrent4j.model.TorrentPeer;
 import com.torrent4j.model.TorrentPieceBlock;
+import com.torrent4j.model.peer.TorrentPeer;
 import com.torrent4j.storage.TorrentStorage;
 import com.torrent4j.strategy.TorrentUploadStrategy;
 

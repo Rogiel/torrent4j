@@ -2,8 +2,8 @@ package com.torrent4j.strategy.standard;
 
 import java.util.List;
 
-import com.torrent4j.model.TorrentPeer;
 import com.torrent4j.model.TorrentPiece;
+import com.torrent4j.model.peer.TorrentPeer;
 
 /**
  * Randomly selects an piece from the available peer pieces

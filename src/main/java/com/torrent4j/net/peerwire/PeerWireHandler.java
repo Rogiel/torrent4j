@@ -11,9 +11,9 @@ import java.util.Date;
 
 import com.torrent4j.TorrentController;
 import com.torrent4j.model.Torrent;
-import com.torrent4j.model.TorrentPeer;
-import com.torrent4j.model.TorrentPeerState.TorrentPeerChoking;
-import com.torrent4j.model.TorrentPeerState.TorrentPeerInterest;
+import com.torrent4j.model.peer.TorrentPeer;
+import com.torrent4j.model.peer.TorrentPeerChoking;
+import com.torrent4j.model.peer.TorrentPeerInterest;
 import com.torrent4j.model.TorrentPiece;
 import com.torrent4j.model.TorrentPieceBlock;
 import com.torrent4j.net.peerwire.codec.PeerWireFrameDecoder;

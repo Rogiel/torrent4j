@@ -1,9 +1,9 @@
 package com.torrent4j.strategy;
 
 import com.torrent4j.model.Torrent;
-import com.torrent4j.model.TorrentPeer;
 import com.torrent4j.model.TorrentPiece;
 import com.torrent4j.model.TorrentPieceBlock;
+import com.torrent4j.model.peer.TorrentPeer;
 
 /**
  * Determines the actions that should be taken regarding downloads

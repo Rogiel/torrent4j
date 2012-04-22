@@ -1,11 +1,12 @@
-package com.torrent4j.model;
+package com.torrent4j.model.peer;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-import com.torrent4j.model.TorrentPeerState.TorrentPeerChoking;
-import com.torrent4j.model.TorrentPeerState.TorrentPeerInterest;
+import com.torrent4j.model.Torrent;
+import com.torrent4j.model.TorrentPiece;
+import com.torrent4j.model.TorrentPieceBlock;
 import com.torrent4j.net.TorrentProtocolPeer;
 
 /**
@@ -74,19 +75,33 @@ public class TorrentPeer {
 	public void setPeerID(TorrentPeerID peerID) {
 		this.peerID = peerID;
 	}
-	
+
 	public void setPeerID(String peerID) {
 		this.peerID = new TorrentPeerID(this, peerID);
 	}
 
 	/**
-	 * Tries to detect the peer's client. If unknown, {@link TorrentPeerClient#UNKNOWN} is
-	 * returned.
+	 * Tries to detect the peer's client. If unknown,
+	 * {@link TorrentPeerClient#UNKNOWN} is returned.
 	 * 
 	 * @return the peer torrent client
 	 */
 	public TorrentPeerClient getClient() {
 		return peerID.getClient();
+	}
+
+	/**
+	 * @return <code>true</code> if the client version is known
+	 */
+	public boolean isClientVersionKnown() {
+		return peerID.isClientVersionKnown();
+	}
+
+	/**
+	 * @return the client version as by the PeerID
+	 */
+	public String getClientVersion() {
+		return peerID.getClientVersion();
 	}
 
 	public TorrentProtocolPeer getProtocolPeer() {

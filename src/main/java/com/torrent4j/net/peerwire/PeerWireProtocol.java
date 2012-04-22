@@ -14,7 +14,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import com.torrent4j.TorrentController;
-import com.torrent4j.model.TorrentPeer;
+import com.torrent4j.model.peer.TorrentPeer;
 import com.torrent4j.net.TorrentProtocol;
 
 public class PeerWireProtocol implements TorrentProtocol {

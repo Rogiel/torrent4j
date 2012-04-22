@@ -1,8 +1,8 @@
 package com.torrent4j.strategy;
 
 import com.torrent4j.model.Torrent;
-import com.torrent4j.model.TorrentPeer;
 import com.torrent4j.model.TorrentPiece;
+import com.torrent4j.model.peer.TorrentPeer;
 
 /**
  * Determine actions that the client should take regarding peers and their

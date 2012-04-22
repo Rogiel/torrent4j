@@ -5,8 +5,8 @@ import io.netty.handler.traffic.TrafficCounter;
 
 import java.util.concurrent.Executor;
 
-import com.torrent4j.model.TorrentPeer;
-import com.torrent4j.model.TorrentPeerTrafficControl;
+import com.torrent4j.model.peer.TorrentPeer;
+import com.torrent4j.model.peer.TorrentPeerTrafficControl;
 
 public class PeerTrafficShapingHandler extends ChannelTrafficShapingHandler {
 	private long writeLimit;

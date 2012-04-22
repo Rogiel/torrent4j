@@ -1,4 +1,6 @@
-package com.torrent4j.model;
+package com.torrent4j.model.peer;
+
+import com.torrent4j.model.Torrent;
 
 /**
  * This ID represents an PeerID on the BitTorrent network
@@ -36,19 +38,37 @@ public class TorrentPeerID {
 	}
 
 	/**
-	 * Tries to detect the peer's client. If unknown, {@link TorrentPeerClient#UNKNOWN} is
-	 * returned.
+	 * Tries to detect the peer's client. If unknown,
+	 * {@link TorrentPeerClient#UNKNOWN} is returned.
 	 * 
 	 * @return the peer torrent client
 	 */
 	public TorrentPeerClient getClient() {
-		for(TorrentPeerClient client : TorrentPeerClient.values()) {
-			if(client == TorrentPeerClient.UNKNOWN)
+		for (TorrentPeerClient client : TorrentPeerClient.values()) {
+			if (client == TorrentPeerClient.UNKNOWN)
 				continue;
-			if(peerID.startsWith(client.prefix))
+			if (peerID.startsWith(client.prefix))
 				return client;
 		}
 		return TorrentPeerClient.UNKNOWN;
+	}
+
+	/**
+	 * @return <code>true</code> if the client version is known
+	 */
+	public boolean isClientVersionKnown() {
+		return getClient().versioned;
+	}
+
+	/**
+	 * @return the client version as by the PeerID
+	 */
+	public String getClientVersion() {
+		if (isClientVersionKnown()) {
+			return this.peerID.substring(3, 7);
+		} else {
+			return null;
+		}
 	}
 
 	/**

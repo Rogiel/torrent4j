@@ -3,7 +3,7 @@ package com.torrent4j.strategy.standard;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.torrent4j.model.TorrentPeer;
+import com.torrent4j.model.peer.TorrentPeer;
 import com.torrent4j.strategy.TorrentDownloadStrategy;
 import com.torrent4j.strategy.TorrentPeerStrategy;
 import com.torrent4j.strategy.TorrentStrategy;
