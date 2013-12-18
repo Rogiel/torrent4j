@@ -6,5 +6,13 @@ package com.torrent4j.model.peer;
  * @author <a href="http://www.rogiel.com">Rogiel</a>
  */
 public enum TorrentPeerInterest {
-	INTERESTED, NOT_INTERESTED;
+	/**
+	 * Determines that the peer is interest in any piece from the other peer.
+	 */
+	INTERESTED,
+	
+	/**
+	 * Determines that the peer is NOT interest in any piece from the other peer.
+	 */
+	NOT_INTERESTED;
 }

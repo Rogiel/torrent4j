@@ -263,8 +263,8 @@
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
-			<artifactId>netty</artifactId>
-			<version>4.0.0.Alpha1-SNAPSHOT</version>
+			<artifactId>netty-all</artifactId>
+			<version>4.0.14.Beta1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -284,32 +284,4 @@
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
-
-
-	<repositories>
-		<repository>
-			<id>jboss-snapshots</id>
-			<url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>oss-sonatype-snapshots</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>oss-sonatype-snapshots</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
 </project>
