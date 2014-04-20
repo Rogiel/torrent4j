@@ -1,6 +1,6 @@
 package com.torrent4j.net.peerwire.messages;
 
-import io.netty.buffer.ChannelBuffer;
+import io.netty.buffer.ByteBuf;
 
 import java.nio.ByteBuffer;
 
@@ -25,17 +25,17 @@ public class BlockMessage extends AbstractPeerWireMessage {
 	}
 
 	@Override
-	public void writeImpl(ChannelBuffer buffer) {
+	public void writeImpl(ByteBuf buffer) {
 		buffer.writeInt(pieceIndex);
 		buffer.writeInt(begin);
 		buffer.writeBytes(data);
 	}
 
 	@Override
-	public void readImpl(ChannelBuffer buffer) {
+	public void readImpl(ByteBuf buffer) {
 		pieceIndex = buffer.readInt();
 		begin = buffer.readInt();
-		data = buffer.readBytes(buffer.readableBytes()).toByteBuffer();
+		data = buffer.readBytes(buffer.readableBytes()).nioBuffer();
 	}
 
 	/*

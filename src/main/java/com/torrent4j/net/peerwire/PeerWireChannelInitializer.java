@@ -1,12 +1,12 @@
 package com.torrent4j.net.peerwire;
 
-import static io.netty.channel.Channels.pipeline;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.ChannelPipelineFactory;
+import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.logging.InternalLogLevel;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import com.torrent4j.TorrentController;
 import com.torrent4j.net.peerwire.codec.PeerWireFrameDecoder;
@@ -16,22 +16,22 @@ import com.torrent4j.net.peerwire.codec.PeerWireMessageEncoder;
 import com.torrent4j.net.peerwire.traffic.PeerTrafficShapingHandler;
 import com.torrent4j.net.peerwire.traffic.TorrentTrafficShapingHandler;
 
-public class PeerWirePipelineFactory implements ChannelPipelineFactory {
+public class PeerWireChannelInitializer extends ChannelInitializer<Channel> {
 	private final TorrentController controller;
-	private final Executor executor;
+	private final ScheduledExecutorService executor;
 
-	public PeerWirePipelineFactory(TorrentController controller,
-			Executor executor) {
+	public PeerWireChannelInitializer(TorrentController controller,
+			ScheduledExecutorService executor) {
 		this.controller = controller;
 		this.executor = executor;
 	}
 
 	@Override
-	public ChannelPipeline getPipeline() throws Exception {
-		final ChannelPipeline p = pipeline();
-
+	protected void initChannel(Channel ch) throws Exception {
+		final ChannelPipeline p = ch.pipeline();
+		
 		p.addLast("torrent-shaper", new TorrentTrafficShapingHandler(executor));
-		p.addLast("traffic-shaper", new PeerTrafficShapingHandler(executor));
+		p.addLast("traffic-shaper", new PeerTrafficShapingHandler());
 
 		p.addLast("frame-decoder", new PeerWireFrameDecoder());
 		p.addLast("frame-encoder", new PeerWireFrameEncoder());
@@ -39,10 +39,9 @@ public class PeerWirePipelineFactory implements ChannelPipelineFactory {
 		p.addLast("message-decoder", new PeerWireMessageDecoder());
 		p.addLast("message-encoder", new PeerWireMessageEncoder());
 
-		p.addLast("logging", new LoggingHandler(InternalLogLevel.WARN));
+		p.addLast("logging", new LoggingHandler(LogLevel.WARN));
 
-		p.addLast("handler", new PeerWireHandler(controller));
-
-		return p;
+		p.addLast("in-handler", new PeerWireInboundHandler(controller));
+		p.addLast("out-handler", new PeerWireOutboundHandler(controller));
 	}
 }

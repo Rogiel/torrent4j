@@ -1,6 +1,6 @@
 package com.torrent4j.net.peerwire.messages;
 
-import io.netty.buffer.ChannelBuffer;
+import io.netty.buffer.ByteBuf;
 
 import com.torrent4j.net.peerwire.AbstractPeerWireMessage;
 
@@ -23,14 +23,14 @@ public class CancelMessage extends AbstractPeerWireMessage {
 	}
 
 	@Override
-	public void writeImpl(ChannelBuffer buffer) {
+	public void writeImpl(ByteBuf buffer) {
 		buffer.writeInt(pieceIndex);
 		buffer.writeInt(begin);
 		buffer.writeInt(length);
 	}
 
 	@Override
-	public void readImpl(ChannelBuffer buffer) {
+	public void readImpl(ByteBuf buffer) {
 		pieceIndex = buffer.readInt();
 		begin = buffer.readInt();
 		length = buffer.readInt();

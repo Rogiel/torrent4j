@@ -33,13 +33,13 @@ public class PeerWireProtocolPeer implements TorrentProtocolPeer {
 
 	@Override
 	public boolean connect() {
-		return channel.connect(channel.getRemoteAddress())
+		return channel.connect(channel.remoteAddress())
 				.awaitUninterruptibly().isSuccess();
 	}
 
 	@Override
 	public boolean isConnected() {
-		return channel.isConnected();
+		return channel.isActive();
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.torrent4j.net.peerwire.messages;
 
-import io.netty.buffer.ChannelBuffer;
+import io.netty.buffer.ByteBuf;
 
 import java.util.BitSet;
 
@@ -21,7 +21,7 @@ public class BitFieldMessage extends AbstractPeerWireMessage {
 	}
 
 	@Override
-	public void writeImpl(ChannelBuffer buffer) {
+	public void writeImpl(ByteBuf buffer) {
 		for (int i = 0; i < bitSet.size();) {
 			byte data = 0;
 			for (int j = 128; i < bitSet.size() && j > 0; j >>= 1, i++) {
@@ -34,10 +34,10 @@ public class BitFieldMessage extends AbstractPeerWireMessage {
 	}
 
 	@Override
-	public void readImpl(ChannelBuffer buffer) {
+	public void readImpl(ByteBuf buffer) {
 		bitSet = new BitSet();
 		int i = 0;
-		while (buffer.readable()) {
+		while (buffer.isReadable()) {
 			byte b = buffer.readByte();
 			for (int j = 128; j > 0; j >>= 1) {
 				bitSet.set(i++, (b & j) != 0);

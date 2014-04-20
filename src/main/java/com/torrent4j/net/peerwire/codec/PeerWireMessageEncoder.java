@@ -1,30 +1,21 @@
 package com.torrent4j.net.peerwire.codec;
 
-import io.netty.buffer.ChannelBuffer;
-import io.netty.buffer.ChannelBuffers;
-import io.netty.channel.Channel;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.oneone.OneToOneEncoder;
+import io.netty.handler.codec.MessageToByteEncoder;
 
 import com.torrent4j.net.peerwire.PeerWireMessage;
 import com.torrent4j.net.peerwire.messages.KeepAliveMessage;
 
-public class PeerWireMessageEncoder extends OneToOneEncoder {
+public class PeerWireMessageEncoder extends MessageToByteEncoder<PeerWireMessage> {
 	private boolean handshaked = false;
 
 	@Override
-	protected Object encode(ChannelHandlerContext ctx, Channel channel,
-			Object msg) throws Exception {
-		if (!(msg instanceof PeerWireMessage))
-			return msg;
-		final PeerWireMessage message = (PeerWireMessage) msg;
-		final ChannelBuffer buffer = ChannelBuffers.dynamicBuffer();
-
+	protected void encode(ChannelHandlerContext ctx, PeerWireMessage message,
+			ByteBuf buffer) throws Exception {
 		if (handshaked && !(message instanceof KeepAliveMessage))
 			buffer.writeInt(0x00);
 		message.write(buffer);
-
-		return buffer;
 	}
 
 	public void setHandshaked(boolean handshaked) {

@@ -1,6 +1,7 @@
 package com.torrent4j.net.peerwire.messages;
 
-import io.netty.buffer.ChannelBuffer;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ public class HandshakeMessage implements PeerWireMessage {
 	}
 
 	@Override
-	public void write(ChannelBuffer buffer) {
+	public void write(ByteBuf buffer) {
 		buffer.writeByte(protocolStringLength);
 		buffer.writeBytes(protocolString.getBytes());
 		buffer.writeLong(reserved);
@@ -32,9 +33,12 @@ public class HandshakeMessage implements PeerWireMessage {
 	}
 
 	@Override
-	public void read(ChannelBuffer buffer) {
+	public void read(ByteBuf buffer) {
 		protocolStringLength = buffer.readByte();
-		protocolString = buffer.readBytes(protocolStringLength).toString();
+		byte[] str = new byte[protocolStringLength];
+		buffer.readBytes(str);
+		protocolString = new String(str);
+		//protocolString = buffer.readBytes
 		reserved = buffer.readLong();
 		torrentHash = buffer.readBytes(20).array();
 		peerID = buffer.readBytes(20).toString(Charset.forName("UTF-8"));

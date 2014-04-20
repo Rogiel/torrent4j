@@ -1,6 +1,6 @@
 package com.torrent4j.net.peerwire.messages;
 
-import io.netty.buffer.ChannelBuffer;
+import io.netty.buffer.ByteBuf;
 
 import com.torrent4j.net.peerwire.PeerWireMessage;
 
@@ -9,11 +9,11 @@ public class KeepAliveMessage implements PeerWireMessage {
 	}
 
 	@Override
-	public void write(ChannelBuffer buffer) {
+	public void write(ByteBuf buffer) {
 	}
 
 	@Override
-	public void read(ChannelBuffer buffer) {
+	public void read(ByteBuf buffer) {
 	}
 
 	/*

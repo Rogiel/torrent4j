@@ -34,8 +34,7 @@ public class BDecoder extends InputStream {
 	 * @throws IOException
 	 */
 	public static Object bdecode(byte[] bencode) throws BDecodingException {
-		BDecoder in = new BDecoder(new ByteArrayInputStream(bencode));
-		try {
+		try(BDecoder in = new BDecoder(new ByteArrayInputStream(bencode))) {
 			return in.readElement();
 		} catch (IOException e) {
 			throw new RuntimeException(e);

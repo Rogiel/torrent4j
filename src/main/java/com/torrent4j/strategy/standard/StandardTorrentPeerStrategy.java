@@ -1,5 +1,7 @@
 package com.torrent4j.strategy.standard;
 
+import java.io.IOException;
+
 import com.torrent4j.model.Torrent;
 import com.torrent4j.model.TorrentPiece;
 import com.torrent4j.model.peer.TorrentPeer;
@@ -14,8 +16,11 @@ public class StandardTorrentPeerStrategy implements TorrentPeerStrategy {
 
 	@Override
 	public void peerDiscovered(Torrent torrent, TorrentPeer peer) {
-		peer.connect();
-		peer.handshake();
+		if(peer.connect()) {
+			peer.handshake();
+		} else {
+			throw new RuntimeException("Could not connect to peer");
+		}
 	}
 
 	@Override

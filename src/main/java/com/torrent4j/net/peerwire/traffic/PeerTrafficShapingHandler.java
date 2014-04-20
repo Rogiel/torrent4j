@@ -3,8 +3,6 @@ package com.torrent4j.net.peerwire.traffic;
 import io.netty.handler.traffic.ChannelTrafficShapingHandler;
 import io.netty.handler.traffic.TrafficCounter;
 
-import java.util.concurrent.Executor;
-
 import com.torrent4j.model.peer.TorrentPeer;
 import com.torrent4j.model.peer.TorrentPeerTrafficControl;
 
@@ -14,8 +12,8 @@ public class PeerTrafficShapingHandler extends ChannelTrafficShapingHandler {
 
 	private TorrentPeer peer;
 
-	public PeerTrafficShapingHandler(Executor executor) {
-		super(executor, 0, 0);
+	public PeerTrafficShapingHandler() {
+		super(0, 0);
 	}
 
 	private void reconfigure() {
@@ -37,9 +35,9 @@ public class PeerTrafficShapingHandler extends ChannelTrafficShapingHandler {
 			return;
 		reconfigure();
 		peer.getTrafficControl().setCurrentDownloadSpeed(
-				counter.getLastReadThroughput());
+				counter.lastReadThroughput());
 		peer.getTrafficControl().setCurrentUploadSpeed(
-				counter.getLastWriteThroughput());
+				counter.lastWriteThroughput());
 	}
 
 	/**

@@ -1,6 +1,6 @@
 package com.torrent4j.net.peerwire;
 
-import io.netty.buffer.ChannelBuffer;
+import io.netty.buffer.ByteBuf;
 
 public abstract class AbstractPeerWireMessage implements PeerWireMessage {
 	public final int messageID;
@@ -10,19 +10,19 @@ public abstract class AbstractPeerWireMessage implements PeerWireMessage {
 	}
 
 	@Override
-	public final void write(ChannelBuffer buffer) {
+	public final void write(ByteBuf buffer) {
 		buffer.writeByte(messageID);
 		writeImpl(buffer);
 	}
 
-	public void writeImpl(ChannelBuffer buffer) {
+	public void writeImpl(ByteBuf buffer) {
 	}
 
 	@Override
-	public final void read(ChannelBuffer buffer) {
+	public final void read(ByteBuf buffer) {
 		readImpl(buffer);
 	}
 
-	public void readImpl(ChannelBuffer buffer) {
+	public void readImpl(ByteBuf buffer) {
 	}
 }

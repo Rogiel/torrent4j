@@ -3,7 +3,7 @@ package com.torrent4j.net.peerwire.traffic;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import io.netty.handler.traffic.TrafficCounter;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import com.torrent4j.model.Torrent;
 import com.torrent4j.model.TorrentTrafficControl;
@@ -14,7 +14,7 @@ public class TorrentTrafficShapingHandler extends GlobalTrafficShapingHandler {
 	private long writeLimit;
 	private long readLimit;
 
-	public TorrentTrafficShapingHandler(Executor executor) {
+	public TorrentTrafficShapingHandler(ScheduledExecutorService executor) {
 		super(executor, 0, 0);
 	}
 
@@ -37,9 +37,9 @@ public class TorrentTrafficShapingHandler extends GlobalTrafficShapingHandler {
 			return;
 		reconfigure();
 		torrent.getTrafficControl().setCurrentDownloadSpeed(
-				counter.getLastReadThroughput());
+				counter.lastReadThroughput());
 		torrent.getTrafficControl().setCurrentUploadSpeed(
-				counter.getLastWriteThroughput());
+				counter.lastWriteThroughput());
 	}
 
 	/**

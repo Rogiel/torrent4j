@@ -1,25 +1,20 @@
 package com.torrent4j.net.peerwire;
 
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.MessageEvent;
-import io.netty.channel.SimpleChannelHandler;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.net.InetSocketAddress;
 import java.util.Date;
 
 import com.torrent4j.TorrentController;
 import com.torrent4j.model.Torrent;
+import com.torrent4j.model.TorrentPiece;
+import com.torrent4j.model.TorrentPieceBlock;
 import com.torrent4j.model.peer.TorrentPeer;
 import com.torrent4j.model.peer.TorrentPeerChoking;
 import com.torrent4j.model.peer.TorrentPeerInterest;
-import com.torrent4j.model.TorrentPiece;
-import com.torrent4j.model.TorrentPieceBlock;
 import com.torrent4j.net.peerwire.codec.PeerWireFrameDecoder;
-import com.torrent4j.net.peerwire.codec.PeerWireFrameEncoder;
 import com.torrent4j.net.peerwire.codec.PeerWireMessageDecoder;
-import com.torrent4j.net.peerwire.codec.PeerWireMessageEncoder;
 import com.torrent4j.net.peerwire.messages.BitFieldMessage;
 import com.torrent4j.net.peerwire.messages.BlockMessage;
 import com.torrent4j.net.peerwire.messages.CancelMessage;
@@ -35,52 +30,51 @@ import com.torrent4j.net.peerwire.traffic.TorrentTrafficShapingHandler;
 import com.torrent4j.util.Hash;
 import com.torrent4j.util.HashType;
 
-public class PeerWireHandler extends SimpleChannelHandler {
+public class PeerWireInboundHandler extends ChannelInboundHandlerAdapter {
 	private final TorrentController controller;
 	private PeerWireProtocolPeer peer;
 
-	public PeerWireHandler(TorrentController controller) {
+	public PeerWireInboundHandler(TorrentController controller) {
 		this.controller = controller;
 	}
 
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
+	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
 		try {
-			final Object msg = e.getMessage();
 			if (!(msg instanceof PeerWireMessage))
 				return;
 			if (msg instanceof HandshakeMessage) {
 				final HandshakeMessage message = (HandshakeMessage) msg;
 
-				((PeerWireFrameDecoder) e.getChannel().getPipeline()
+				((PeerWireFrameDecoder) ctx.channel().pipeline()
 						.get("frame-decoder")).setHandshaked(true);
-				((PeerWireMessageDecoder) e.getChannel().getPipeline()
+				((PeerWireMessageDecoder) ctx.channel().pipeline()
 						.get("message-decoder")).setHandshaked(true);
 
 				final Hash hash = new Hash(HashType.SHA1, message.torrentHash);
 				final Torrent torrent = controller.findTorrent(hash);
 
 				if (torrent == null) {
-					e.getChannel().disconnect();
+					ctx.channel().disconnect();
 					return;
 				}
 
 				TorrentPeer peer = torrent.getSwarm().findPeer(
-						(InetSocketAddress) e.getChannel().getRemoteAddress(),
+						(InetSocketAddress) ctx.channel().remoteAddress(),
 						message.peerID);
 				if (peer == null) {
 					peer = new TorrentPeer(torrent);
-					peer.setAddress((InetSocketAddress) e.getChannel()
-							.getRemoteAddress());
+					peer.setAddress((InetSocketAddress) ctx.channel()
+							.remoteAddress());
 				}
 				peer.setPeerID(message.peerID);
 				
 				this.peer = (PeerWireProtocolPeer) peer.getProtocolPeer();
 
-				e.getChannel().getPipeline()
+				ctx.channel().pipeline()
 						.get(PeerTrafficShapingHandler.class).setPeer(peer);
-				e.getChannel().getPipeline()
+				ctx.channel().pipeline()
 						.get(TorrentTrafficShapingHandler.class)
 						.setTorrent(torrent);
 
@@ -209,93 +203,7 @@ public class PeerWireHandler extends SimpleChannelHandler {
 				System.out.println(msg);
 			}
 		} finally {
-			ctx.sendUpstream(e);
+			super.channelRead(ctx, msg);
 		}
 	}
-
-	@Override
-	public void writeRequested(ChannelHandlerContext ctx, MessageEvent e)
-			throws Exception {
-		try {
-			final Object msg = e.getMessage();
-			if (!(msg instanceof PeerWireMessage))
-				return;
-			if (msg instanceof HandshakeMessage) {
-				e.getFuture().addListener(new ChannelFutureListener() {
-					@Override
-					public void operationComplete(ChannelFuture future)
-							throws Exception {
-						((PeerWireFrameEncoder) future.getChannel()
-								.getPipeline().get("frame-encoder"))
-								.setHandshaked(true);
-						((PeerWireMessageEncoder) future.getChannel()
-								.getPipeline().get("message-encoder"))
-								.setHandshaked(true);
-					}
-				});
-			} else if (msg instanceof BlockMessage) {
-				final BlockMessage message = (BlockMessage) msg;
-
-				final TorrentPiece piece = peer.getTorrent().getPiece(
-						message.pieceIndex);
-				final TorrentPieceBlock block = piece.getBlock(message.begin,
-						message.data.remaining());
-
-				peer.getTorrentPeer().getState().setLastUploadedBlock(block);
-				peer.getTorrentPeer().getState()
-						.setLastUploadedBlockDate(new Date());
-
-				e.getFuture().addListener(new ChannelFutureListener() {
-					@Override
-					public void operationComplete(ChannelFuture future)
-							throws Exception {
-						if (!future.isSuccess())
-							return;
-						peer.getTorrentPeer().getState()
-								.setUploadRequestedBlock(null);
-						peer.getTorrentPeer().getState()
-								.setUploadRequestedDate(null);
-					}
-				});
-			} else if (msg instanceof RequestMessage) {
-				final RequestMessage message = (RequestMessage) msg;
-
-				final TorrentPiece piece = peer.getTorrent().getPiece(
-						message.pieceIndex);
-				final TorrentPieceBlock block = piece.getBlock(message.begin,
-						message.length);
-
-				peer.getTorrentPeer().getState()
-						.setDownloadRequestedBlock(block);
-				peer.getTorrentPeer().getState()
-						.setDownloadRequestedDate(new Date());
-			} else if (msg instanceof CancelMessage) {
-				e.getFuture().addListener(new ChannelFutureListener() {
-					@Override
-					public void operationComplete(ChannelFuture future)
-							throws Exception {
-						if (!future.isSuccess())
-							return;
-						peer.getTorrentPeer().getState()
-								.setDownloadRequestedBlock(null);
-						peer.getTorrentPeer().getState()
-								.setDownloadRequestedDate(null);
-					}
-				});
-			}
-		} finally {
-			ctx.sendDownstream(e);
-		}
-	}
-
-	// @Override
-	// public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent
-	// e)
-	// throws Exception {
-	// try {
-	// peer = new PeerWireProtocolPeer(e.getChannel());
-	// } finally {
-	// ctx.sendUpstream(e);
-	// }
-	// }
 }

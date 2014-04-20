@@ -187,7 +187,7 @@ public class TorrentPeer {
 
 	// NETWORK RELATED THINGS!
 	public void handshake() {
-		// FIXME sent another peer id
+		// FIXME send another peer id
 		protocolPeer.handshake(torrent.getHash().getHash(), torrent
 				.getController().getConfig().getPeerID());
 	}

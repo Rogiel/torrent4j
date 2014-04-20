@@ -1,9 +1,9 @@
 package com.torrent4j.net.peerwire;
 
-import io.netty.buffer.ChannelBuffer;
+import io.netty.buffer.ByteBuf;
 
 public interface PeerWireMessage {
-	void write(ChannelBuffer buffer);
+	void write(ByteBuf buffer);
 
-	void read(ChannelBuffer buffer);
+	void read(ByteBuf buffer);
 }

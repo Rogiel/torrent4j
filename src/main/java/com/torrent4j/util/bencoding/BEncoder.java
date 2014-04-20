@@ -166,7 +166,9 @@ public final class BEncoder extends OutputStream {
 
 	public static final String encode(Object object) throws IOException {
 		final ByteArrayOutputStream out = new ByteArrayOutputStream(2048);
-		new BEncoder(out).writeElement(object);
+		try(BEncoder bout = new BEncoder(out)) {
+			bout.writeElement(object);
+		}
 		return new String(out.toByteArray());
 	}
 

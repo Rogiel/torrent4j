@@ -1,6 +1,6 @@
 package com.torrent4j.net.peerwire.messages;
 
-import io.netty.buffer.ChannelBuffer;
+import io.netty.buffer.ByteBuf;
 
 import com.torrent4j.net.peerwire.AbstractPeerWireMessage;
 
@@ -19,12 +19,12 @@ public class HaveMessage extends AbstractPeerWireMessage {
 	}
 
 	@Override
-	public void writeImpl(ChannelBuffer buffer) {
+	public void writeImpl(ByteBuf buffer) {
 		buffer.writeInt(pieceIndex);
 	}
 
 	@Override
-	public void readImpl(ChannelBuffer buffer) {
+	public void readImpl(ByteBuf buffer) {
 		pieceIndex = buffer.readInt();
 	}
 

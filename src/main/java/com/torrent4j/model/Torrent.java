@@ -296,9 +296,11 @@ public class Torrent {
 	 *             if any error occur while reading the torrent file
 	 */
 	public static Torrent load(InputStream in) throws IOException {
-		final Object node = new BDecoder(in).readElement();
-		final TorrentMetadata metadata = new TorrentMetadata((BMap) node);
-		return new Torrent(metadata);
+		try(BDecoder bin = new BDecoder(in)) {
+			final Object node = bin.readElement();
+			final TorrentMetadata metadata = new TorrentMetadata((BMap) node);
+			return new Torrent(metadata);
+		}
 	}
 
 	/**
